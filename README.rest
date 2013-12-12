@@ -7,6 +7,16 @@ It draws heavily on ansible-examples/openshift and ansible-openshift_origin, in 
 ActiveMQ
 ========
 
-ssh -L 8161:localhost:8161 root@brokerhel.phs.net
-http://localhost:8161/admin/network.jsp
-admin:admin
+Test ActiveMQ:
+
+First, connect from your workstation and forward ports, like so::
+
+  # ssh -L 8161:localhost:8161 root@broker.some.net
+
+Now point your browser to::
+
+  http://localhost:8161/admin/network.jsp
+
+By default use credentials::
+
+  admin:admin
