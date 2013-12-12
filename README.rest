@@ -4,6 +4,10 @@ Intro
 This set of ansible playbooks is intended for install of OpenShift-Origin on RHEL  platform. 
 It draws heavily on ansible-examples/openshift and ansible-openshift_origin, in fact probably 90% of code comes from either of the two.
 
+Dependencies
+============
+
+* `ansible-libs <https://github.com/droopy4096/ansible-libs>`_
 
 Development
 ===========
