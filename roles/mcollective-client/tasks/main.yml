@@ -1,0 +1,11 @@
+---
+### main.yml - mcollective-client role for an OpenShift Origin deployment 
+#
+# Ansible playbook to deploy OpenShift Origin using nightly builds
+#
+
+
+- name: Configure mcollective client
+  tags: configure
+  template: src=client.cfg.j2 dest=/etc/mcollective/client.cfg
+            owner=root group=root mode=0644 backup=yes

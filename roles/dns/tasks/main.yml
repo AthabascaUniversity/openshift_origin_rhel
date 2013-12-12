@@ -1,0 +1,70 @@
+---
+### main.yml - named role for an OpenShift Origin deployment 
+#
+# Ansible playbook to deploy OpenShift Origin using nightly builds
+#
+
+- name: Configure Persistent FirewallD for BIND
+  tags: configure
+  shell: lokkit --service dns
+
+- name: Install bind
+  tags: installer
+  yum: pkg={{item}} state=latest
+  with_items:
+    - bind
+    - bind-utils
+
+- name: Configure named dynamic-domain.db
+  tags: configure
+  template: src=dynamic-zone.db.j2
+            dest=/var/named/dynamic/{{cloud_domain}}.db
+            backup=yes
+  notify:
+  - restart named
+- name: Configure named infra-zone.db
+  tags: configure
+  template: src=infra-zone.db.j2
+            dest=/var/named/{{infra_domain}}.db
+            backup=yes
+  notify:
+  - restart named
+- name: Configure named forwarders.conf
+  tags: configure
+  template: src=forwarders.conf.j2
+            dest=/var/named/forwarders.conf
+            backup=yes
+  notify:
+  - restart named
+- name: Configure named named.conf
+  tags: configure
+  template: src=named.conf.j2
+            dest=/etc/named.conf
+            backup=yes
+  notify:
+  - restart named
+
+## FIXME: - Need a more clean way to do this
+- name: Setup DNSSEC Keys and Config script
+  tags: configure
+  template: src=named_dnssec_setup.sh.j2
+            dest=/root/00-setup_dnssec.sh
+            owner=root group=root mode=0500
+  changed_when: False
+- name: Run named DNSSEC script 
+  tags: configure
+  command: /root/00-setup_dnssec.sh
+  register: command_result
+  ignore_errors: True
+  changed_when: "command_result.rc != 0"
+  notify:
+  - restart named
+
+- name: Clean up after named DNSSEC script
+  tags: configure
+  file: path=/root/00-setup_dnssec.sh state=absent
+  changed_when: False
+
+- name: restart/enable named daemon
+  tags: configure
+  service: name=named state=started enabled=yes

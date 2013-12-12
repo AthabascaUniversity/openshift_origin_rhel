@@ -1,0 +1,38 @@
+---
+
+- hosts: all
+  roles: 
+  - role: common
+
+- hosts: dns
+  roles: 
+  - role: dns
+
+- hosts: mongodb
+  roles: 
+  - role: mongodb
+
+- hosts: mq
+  roles: 
+    - role: qpid
+      when: mq_provider == "qpid"
+    - role: activemq
+      when: mq_provider == "activemq"
+
+- hosts: broker
+  roles:
+  - role: mcollective-client
+  - role: broker
+  # - role: broker-plugins
+  # - role: web-console
+
+# - hosts: node
+  # roles:
+  # - role: node
+#
+### Cut-off
+
+- hosts: all
+  roles: 
+    - role: post-deploy
+
