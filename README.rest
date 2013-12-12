@@ -2,7 +2,9 @@ Intro
 =====
 
 This set of ansible playbooks is intended for install of OpenShift-Origin on RHEL  platform. 
-It draws heavily on ansible-examples/openshift and ansible-openshift_origin, in fact probably 90% of code comes from either of the two.
+It draws heavily on ansible-examples/openshift and ansible-openshift_origin, in fact probably 90% of code comes from either of the two. 
+
+Reason for this playbook existence is that ansible-openshift_origin is heavily Fedora-centric and single-host at the moment, and ansible-examples/openshift is geared for HA multihost deployment. This playbook is more of variation from ansible-openshift_origin with bit more multihost and RHEL goodness from ansible-examples/openshift
 
 Dependencies
 ============
