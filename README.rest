@@ -4,6 +4,19 @@ Intro
 This set of ansible playbooks is intended for install of OpenShift-Origin on RHEL  platform. 
 It draws heavily on ansible-examples/openshift and ansible-openshift_origin, in fact probably 90% of code comes from either of the two.
 
+
+Development
+===========
+
+to ignore changes made locally to ansible.cfg (thus never commiting them back)::
+
+  $ git update-index --assume-unchanged ansible.cfg
+
+to resume tracking::
+
+  $ git update-index --no-assume-unchanged ansible.cfg
+
+
 ActiveMQ
 ========
 
@@ -11,7 +24,7 @@ Test ActiveMQ:
 
 First, connect from your workstation and forward ports, like so::
 
-  # ssh -L 8161:localhost:8161 root@broker.some.net
+  $ ssh -L 8161:localhost:8161 root@broker.some.net
 
 Now point your browser to::
 
