@@ -18,7 +18,7 @@
 
 - name: Check for mongo auth
   tags: configure
-  shell: "{{egrep}} '^auth = true' /etc/mongodb.conf || echo $?"
+  shell: "{{egrep}} '^auth *= *true' /etc/mongodb.conf || echo $?"
   register: r_checkmongoauth
   changed_when: False
 

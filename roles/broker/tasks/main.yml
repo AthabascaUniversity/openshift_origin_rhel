@@ -2,7 +2,7 @@
 
 - name: Set hostname (RHEL)
   tags: configure
-  lineinfile: dest=/etc/sysconfig/network line="HOSTNAME={{ broker_fqdn }}" 
+  lineinfile: dest=/etc/sysconfig/network line="HOSTNAME={{ broker_fqdn }}" regexp='HOSTNAME'
 
 - name: Set broker_fqdn in /etc/hosts
   tags: configure
@@ -14,15 +14,17 @@
   tags: configure
   seboolean:  name={{item}} state=true persistent=yes
   with_items:
+
     - httpd_unified
+    - httpd_execmem
     - httpd_can_network_connect
     - httpd_can_network_relay 
     - httpd_run_stickshift
     - named_write_master_zones 
     - httpd_verify_dns
+    - allow_ypbind
     - httpd_enable_homedirs
     - httpd_execmem
-    - nis_enabled # Replaced allow_ypbind as per booleans.subs_dist
   tags:
     - selinux
 
@@ -58,15 +60,19 @@
   - rubygem-openshift-origin-auth-remote-user 
   - rubygem-openshift-origin-auth-mongo 
   - rubygem-openshift-origin-msg-broker-mcollective 
-  - rubygem-openshift-origin-dns-avahi 
+  # - rubygem-openshift-origin-dns-avahi 
   - rubygem-openshift-origin-dns-nsupdate 
   - rubygem-openshift-origin-dns-route53 
   - ruby193-rubygem-passenger 
   - ruby193-mod_passenger
   # may not need this one
   - ruby193-ruby-mysql 
-  async: 5400
-  poll: 10
+  # async: 5400
+  # poll: 10
+
+## - name: make sure above yum operation finished (only under Ansible 1.4)
+  ## tags: install
+  ## wait_for: path=/etc/openshift
 
 - name: broker.conf
   tags: configure
