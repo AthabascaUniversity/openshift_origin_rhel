@@ -1,0 +1,6 @@
+[openshift-origin-nightly]
+name=OpenShift Origin Nightly builds
+baseurl=https://mirror.openshift.com/pub/openshift-origin/nightly/rhel-{{ ansible_distribution_version[0]}}/latest/{{ ansible_architecture }}/
+enabled=1
+gpgcheck=0
+sslverify=false

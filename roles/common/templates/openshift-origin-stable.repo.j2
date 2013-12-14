@@ -1,0 +1,6 @@
+[openshift-origin-stable-{{oo_stable_ver}}]
+name=OpenShift Origin Stable
+baseurl=https://mirror.openshift.com/pub/openshift-origin/release/{{oo_stable_ver}}/rhel-{{ ansible_distribution_version[0]}}/packages/{{ ansible_architecture }}/
+enabled=1
+gpgcheck=0
+sslverify=false
