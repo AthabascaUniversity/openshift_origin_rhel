@@ -63,6 +63,8 @@
   # - rubygem-openshift-origin-dns-avahi 
   - rubygem-openshift-origin-dns-nsupdate 
   - rubygem-openshift-origin-dns-route53 
+  # required by bundle install script: broker_bundle_install.sh
+  - rubygem-openshift-origin-dns-bind
   - ruby193-rubygem-passenger 
   - ruby193-mod_passenger
   # may not need this one
@@ -140,41 +142,42 @@
             dest=/etc/openshift/plugins.d/openshift-origin-dns-bind.conf
             owner=root group=root mode=0644
 
-- name: Make sure routes file exists for all-in-one host config
-  tags: configure
-  copy: src=nodes.txt dest=/etc/httpd/conf.d/openshift/nodes.txt
-        force=no
-  when: oo_single_host == "true"
-
-- name: Set route for all-in-one host
-  tags: configure
-  lineinfile: dest=/etc/httpd/conf.d/openshift/nodes.txt
-              regexp="__default__ REDIRECT:/console"
-              line="__default__ REDIRECT:/console"
-              state=present
-  when: oo_single_host == "true"
-  notify:
-    - regenerate broker routes
-
-- name: Set route for all-in-one host
-  tags: configure
-  lineinfile: dest=/etc/httpd/conf.d/openshift/nodes.txt
-              regexp="__default__/console TOHTTPS:127.0.0.1:8118/console"
-              line="__default__/console TOHTTPS:127.0.0.1:8118/console"
-              state=present
-  when: oo_single_host == "true"
-  notify:
-    - regenerate broker routes
-
-- name: Set route for all-in-one host
-  tags: configure
-  lineinfile: dest=/etc/httpd/conf.d/openshift/nodes.txt
-              regexp="__default__/broker TOHTTPS:127.0.0.1:8080/broker"
-              line="__default__/broker TOHTTPS:127.0.0.1:8080/broker"
-              state=present
-  when: oo_single_host == "true"
-  notify:
-    - regenerate broker routes
+##MOVED_TO_NODE ## This has to go to nodes
+##MOVED_TO_NODE - name: Make sure routes file exists for all-in-one host config
+##MOVED_TO_NODE   tags: configure
+##MOVED_TO_NODE   copy: src=nodes.txt dest=/etc/httpd/conf.d/openshift/nodes.txt
+##MOVED_TO_NODE         force=no
+##MOVED_TO_NODE   when: oo_single_host == "true"
+##MOVED_TO_NODE 
+##MOVED_TO_NODE - name: Set route for all-in-one host
+##MOVED_TO_NODE   tags: configure
+##MOVED_TO_NODE   lineinfile: dest=/etc/httpd/conf.d/openshift/nodes.txt
+##MOVED_TO_NODE               regexp="__default__ REDIRECT:/console"
+##MOVED_TO_NODE               line="__default__ REDIRECT:/console"
+##MOVED_TO_NODE               state=present
+##MOVED_TO_NODE   when: oo_single_host == "true"
+##MOVED_TO_NODE   notify:
+##MOVED_TO_NODE     - regenerate broker routes
+##MOVED_TO_NODE 
+##MOVED_TO_NODE - name: Set route for all-in-one host
+##MOVED_TO_NODE   tags: configure
+##MOVED_TO_NODE   lineinfile: dest=/etc/httpd/conf.d/openshift/nodes.txt
+##MOVED_TO_NODE               regexp="__default__/console TOHTTPS:127.0.0.1:8118/console"
+##MOVED_TO_NODE               line="__default__/console TOHTTPS:127.0.0.1:8118/console"
+##MOVED_TO_NODE               state=present
+##MOVED_TO_NODE   when: oo_single_host == "true"
+##MOVED_TO_NODE   notify:
+##MOVED_TO_NODE     - regenerate broker routes
+##MOVED_TO_NODE 
+##MOVED_TO_NODE - name: Set route for all-in-one host
+##MOVED_TO_NODE   tags: configure
+##MOVED_TO_NODE   lineinfile: dest=/etc/httpd/conf.d/openshift/nodes.txt
+##MOVED_TO_NODE               regexp="__default__/broker TOHTTPS:127.0.0.1:8080/broker"
+##MOVED_TO_NODE               line="__default__/broker TOHTTPS:127.0.0.1:8080/broker"
+##MOVED_TO_NODE               state=present
+##MOVED_TO_NODE   when: oo_single_host == "true"
+##MOVED_TO_NODE   notify:
+##MOVED_TO_NODE     - regenerate broker routes
 
 - name: Verify origin-broker and rubygem-bundler are installed
   tags: install
@@ -183,8 +186,9 @@
     - openshift-origin-broker
     - rubygem-bundler
 
-##FC - name: Broker bundle install 
-  ##FC script: broker_bundle_install.sh
+#DIMON Do we need it?
+- name: Broker bundle install 
+  script: broker_bundle_install.sh
 
 - name: Bundle the ruby gems
   tags: configure

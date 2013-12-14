@@ -1,0 +1,40 @@
+---
+
+## Moved from broker...
+- name: Make sure routes file exists for all-in-one host config
+  tags: configure
+  copy: src=nodes.txt dest=/etc/httpd/conf.d/openshift/nodes.txt
+        force=no
+  when: oo_single_host == "true"
+
+- name: Set route for all-in-one host
+  tags: configure
+  lineinfile: dest=/etc/httpd/conf.d/openshift/nodes.txt
+              regexp="__default__ REDIRECT:/console"
+              line="__default__ REDIRECT:/console"
+              state=present
+  when: oo_single_host == "true"
+  notify:
+    - regenerate broker routes
+
+- name: Set route for all-in-one host
+  tags: configure
+  lineinfile: dest=/etc/httpd/conf.d/openshift/nodes.txt
+              regexp="__default__/console TOHTTPS:127.0.0.1:8118/console"
+              line="__default__/console TOHTTPS:127.0.0.1:8118/console"
+              state=present
+  when: oo_single_host == "true"
+  notify:
+    - regenerate broker routes
+
+- name: Set route for all-in-one host
+  tags: configure
+  lineinfile: dest=/etc/httpd/conf.d/openshift/nodes.txt
+              regexp="__default__/broker TOHTTPS:127.0.0.1:8080/broker"
+              line="__default__/broker TOHTTPS:127.0.0.1:8080/broker"
+              state=present
+  when: oo_single_host == "true"
+  notify:
+    - regenerate broker routes
+
+
