@@ -13,7 +13,7 @@ Licenses
 
   * `Apache 2.0 <http://www.apache.org/licenses/LICENSE-2.0>`_
 
-* `ansible-examples <https://github.com/ansible/ansible-examples>`_
+* `ansible-examples/openshift <https://github.com/ansible/ansible-examples/tree/master/openshift>`_
 
   * `Creative Commons Attribution 3.0 Unported License <http://creativecommons.org/licenses/by/3.0/deed.en_US>`_
 
