@@ -1,6 +1,10 @@
 [openshift-origin-stable-{{oo_stable_ver}}]
 name=OpenShift Origin Stable
+{% if official_broken == 'true' %}
+baseurl=http://www.krishnaraman.net/downloads/openshift-origin-release-3/build-1/rhel/x86_64/
+{% else %}
 baseurl=https://mirror.openshift.com/pub/openshift-origin/release/{{oo_stable_ver}}/rhel-{{ ansible_distribution_version[0]}}/packages/{{ ansible_architecture }}/
+{% endif %}
 enabled=1
 gpgcheck=0
 sslverify=false

@@ -24,12 +24,12 @@
   - role: mcollective-client
   - role: broker
   # - role: broker-plugins
-  # - role: web-console
+  - role: web-console
 
-# - hosts: node
-  # roles:
-  # - role: node
-#
+- hosts: node
+  roles:
+  - role: node
+
 ### Cut-off
 
 - hosts: all

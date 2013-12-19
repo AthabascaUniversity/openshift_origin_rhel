@@ -51,6 +51,7 @@ oo_external_iface: "{{ansible_default_ipv4.interface}}"
 # 						at the time of this writing version 2 is most recent.
 oo_nightly: "false"
 oo_stable: "true"
+official_broken: "true"
 oo_stable_ver: "3"
 
 
