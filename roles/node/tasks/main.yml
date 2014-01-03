@@ -18,7 +18,7 @@
   seboolean:  name={{item}} state=true persistent=yes
   with_items:
     - httpd_run_stickshift
-    - polyinstantiation_enabled
+    - allow_polyinstantiation
     - httpd_can_network_connect
     - httpd_can_network_relay
     - httpd_read_user_content
@@ -53,7 +53,7 @@
   with_items:
     - ruby-devel 
     - audit
-    - mariadb-devel 
+    - mysql-devel 
     - mongodb-devel 
     - gcc 
     - make
@@ -80,16 +80,16 @@
 - name: Install OpenShift Cartridge Packages
   yum: pkg={{item}} state=latest
   with_items:
-    - openshift-origin-cartridge-abstract
+    # - openshift-origin-cartridge-abstract
     - openshift-origin-cartridge-10gen-mms-agent
     - openshift-origin-cartridge-cron
     - openshift-origin-cartridge-diy
     - openshift-origin-cartridge-haproxy
     - openshift-origin-cartridge-mongodb
-    - openshift-origin-cartridge-mariadb
+    - openshift-origin-cartridge-mysql
     - openshift-origin-cartridge-nodejs
-    - openshift-origin-cartridge-jenkins
-    - openshift-origin-cartridge-jenkins-client
+    # - openshift-origin-cartridge-jenkins
+    # - openshift-origin-cartridge-jenkins-client
     - openshift-origin-cartridge-python
     - openshift-origin-cartridge-postgresql
     - openshift-origin-cartridge-ruby
@@ -102,6 +102,7 @@
 ### Register DNS
 #FIXME === This doesn't work, need to sort that out
 #FIXME - Should parameterize this later
+#
 #- name: Register DNS
 #  shell: "{{oo-register-dns}} -h {{ansible_fqdn}} -n {{oo_ipaddr}}"
 
@@ -116,14 +117,16 @@
   yum: pkg=activemq state=latest
   when: mq_provider == "activemq"
 
-### Install libvirt bits for sandboxing
-- name: Install libvirt requirements
-  yum: pkg={{item}} state=latest
-  with_items:
-    - libvirt-daemon
-    - libvirt-sandbox
-- name: Start and Enable libvirtd
-  service: name=libvirtd state=started enabled=yes
+
+##FEDORA ### libvirt* pieces are not listed in official docs?
+##FEDORA ### Install libvirt bits for sandboxing
+##FEDORA - name: Install libvirt requirements
+##FEDORA   yum: pkg={{item}} state=latest
+##FEDORA   with_items:
+##FEDORA     - libvirt-daemon
+##FEDORA     - libvirt-sandbox
+##FEDORA - name: Start and Enable libvirtd
+##FEDORA   service: name=libvirtd state=started enabled=yes
 
 ### Configure dhclient FIXME - for not-all-in-one
 

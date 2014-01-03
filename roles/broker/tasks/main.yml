@@ -55,20 +55,33 @@
   # with_items: "{{ broker_packages }}"
   # We will go with docs:
   with_items:
+##DIMON  - openshift-origin-broker 
+##DIMON  - openshift-origin-broker-util 
+##DIMON  - rubygem-openshift-origin-auth-remote-user 
+##DIMON  - rubygem-openshift-origin-auth-mongo 
+##DIMON  - rubygem-openshift-origin-msg-broker-mcollective 
+##DIMON  # - rubygem-openshift-origin-dns-avahi 
+##DIMON  - rubygem-openshift-origin-dns-nsupdate 
+##DIMON  - rubygem-openshift-origin-dns-route53 
+##DIMON  # required by bundle install script: broker_bundle_install.sh
+##DIMON  - rubygem-openshift-origin-dns-bind
+##DIMON  - ruby193-rubygem-passenger 
+##DIMON  - ruby193-mod_passenger
+##DIMON  # may not need this one
+##DIMON  - ruby193-ruby-mysql 
+
+  ## From official docs:
   - openshift-origin-broker 
   - openshift-origin-broker-util 
   - rubygem-openshift-origin-auth-remote-user 
   - rubygem-openshift-origin-auth-mongo 
   - rubygem-openshift-origin-msg-broker-mcollective 
+  ## dns-avahi gem is not present on RHEL repos
   # - rubygem-openshift-origin-dns-avahi 
   - rubygem-openshift-origin-dns-nsupdate 
   - rubygem-openshift-origin-dns-route53 
-  # required by bundle install script: broker_bundle_install.sh
-  - rubygem-openshift-origin-dns-bind
   - ruby193-rubygem-passenger 
   - ruby193-mod_passenger
-  # may not need this one
-  - ruby193-ruby-mysql 
   # async: 5400
   # poll: 10
 
