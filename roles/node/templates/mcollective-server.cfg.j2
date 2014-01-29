@@ -1,7 +1,8 @@
 topicprefix = /topic/
 main_collective = mcollective
 collectives = mcollective
-libdir = /usr/libexec/mcollective
+##FEDORA libdir = /usr/libexec/mcollective
+libdir = /opt/rh/ruby193/root/usr/libexec/mcollective
 logfile = /var/log/mcollective.log
 loglevel = debug
 daemonize = 1
@@ -31,4 +32,5 @@ plugin.qpid.timeout=5
 
 # Facts
 factsource = yaml
-plugin.yaml = /etc/mcollective/facts.yaml
+##FEDORA plugin.yaml = /etc/mcollective/facts.yaml
+plugin.yaml = /opt/rh/ruby193/root/etc/mcollective/facts.yaml

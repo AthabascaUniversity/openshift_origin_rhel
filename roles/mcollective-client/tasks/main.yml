@@ -5,7 +5,11 @@
 #
 
 
+- name: Create mcollective client config directory
+  tags: configure
+  file: dest=/opt/rh/ruby193/root/etc/mcollective state=directory
+
 - name: Configure mcollective client
   tags: configure
-  template: src=client.cfg.j2 dest=/etc/mcollective/client.cfg
+  template: src=client.cfg.j2 dest=/opt/rh/ruby193/root/etc/mcollective/client.cfg
             owner=root group=root mode=0644 backup=yes

@@ -76,6 +76,14 @@
   ## async: 5400
   ## poll: 10
 
+- name: Install OpenShift front-end plugins
+  yum: pkg={{item}} state=latest
+  with_items:
+    ## can't have both mod-rewrite ?& vhost - it's one or the other
+    - rubygem-openshift-origin-frontend-apache-mod-rewrite
+    # - rubygem-openshift-origin-frontend-apache-vhost
+    - rubygem-openshift-origin-frontend-nodejs-websocket
+
 ### Install cartridge pkgs for OpenShift Origin Node
 - name: Install OpenShift Cartridge Packages
   yum: pkg={{item}} state=latest
@@ -243,7 +251,7 @@
 - name: Create directory for cgroups
   file: path=/cgroup state=directory
 
-- name: restart cgroups
+- name: restart croles/broker/handlers/main.yml:groups
   service: name="{{ item }}" state=restarted enabled=yes
   with_items:
       - cgconfig
@@ -276,3 +284,8 @@
 
 - name: start/enable sshd
   service: name=sshd state=started enabled=yes
+
+## ln -s /etc/openshift/server_pub.pem /var/www/openshift/broker/config/server_pub.pem
+- name: Symlink server_pub.pem
+  file: src=/etc/openshift/server_pub.pem dest=/var/www/openshift/broker/config/server_pub.pem state=link
+
