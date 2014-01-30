@@ -1,5 +1,5 @@
-[epel]
-name=Extra Packages for Enterprise Linux 6 - $basearch
+[epel-oso]
+name=Extra Packages for Enterprise Linux 6 - $basearch (installed via OSO scripts)
 #baseurl=http://download.fedoraproject.org/pub/epel/6/$basearch
 mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=epel-6&arch=$basearch
 exclude=*passenger* nodejs* mcollective*

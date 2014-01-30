@@ -206,6 +206,7 @@
 - name: openshift node sshd config
   copy: src=sshd_config dest=/etc/ssh/sshd_config
         owner=root group=root mode=0600
+#TODO
 #- name: broker and console route for node
 #  copy: src=node_routes.txt dest=/tmp/nodes.broker_routes.txt
 #        owner=root group=root mode=0644
@@ -289,3 +290,14 @@
 - name: Symlink server_pub.pem
   file: src=/etc/openshift/server_pub.pem dest=/var/www/openshift/broker/config/server_pub.pem state=link
 
+- name: Make sure routes file exists for all-in-one host config
+  tags: configure
+  copy: src=allinone-nodes.txt dest=/etc/httpd/conf.d/openshift/nodes.txt
+        force=no
+  when: oo_single_host == "true"
+
+- name: regenerate broker routes
+  script: regenerate_broker_routes.sh
+
+- name: restart broker 
+  service: name=openshift-broker state=restarted
