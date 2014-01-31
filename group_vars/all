@@ -91,11 +91,13 @@ broker_fqdn: brokerhel.phs.net
 broker_auth_pubkey_path: /etc/openshift/server_pub.pem
 broker_rsync_key_path: /etc/openshift/rsync_id_rsa
 
-named_forwarder_ip: "8.8.8.8; 8.8.4.4"
+# named_forwarder_ip: "8.8.8.8; 8.8.4.4"
+named_forwarder_ip: "192.168.0.1"
 named_tsig_priv_key: ""
 
 # infra-domain - infrastrcture domain
 infra_domain: phs.net
+broker_infra_host: brokerhel
 
 # cloud_domain - subdomain for PaaS Cloud apps to live under
 cloud_domain: app.phs.net

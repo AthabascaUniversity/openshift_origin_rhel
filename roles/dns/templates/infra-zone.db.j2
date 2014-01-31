@@ -10,6 +10,7 @@ $TTL 1800       ; 30 minutes
       NS        ns1.{{ infra_domain }}.
 $ORIGIN {{ infra_domain }}
 ns1                     A       {{ oo_ipaddr }}
+{{ broker_infra_host }} A       {{ oo_ipaddr }}
 broker                  A       {{ oo_ipaddr }}
 msg1                    A       {{ oo_ipaddr }}
 node1                   A       {{ oo_ipaddr }}
