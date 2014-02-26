@@ -1,0 +1,95 @@
+---
+## main.yml - OpenShift Origin Node role for an OpenShift Origin deployment
+#
+# Ansible playbook to deploy OpenShift Origin using nightly builds
+#
+#
+
+## Hmm, maybe later?
+## - name: Setup OpenShift Origin Nightly Supplemental Repo
+##   copy: src=jenkins.repo dest=/etc/yum.repos.d/jenkins.repo
+ 
+### Dev tools needed by some gem installs for native modules/extensions 
+- name: Install dev-tool deps for gem installs
+  yum: pkg={{item}} state=latest
+  with_items:
+    - ruby-devel 
+    - audit
+    - mysql-devel 
+    - mongodb-devel 
+    - gcc 
+    - make
+
+### Install pkgs for OpenShift Origin Node
+- name: Install OpenShift Package List
+  yum: pkg={{item}} state=latest
+  with_items:
+    - rubygem-openshift-origin-node
+    - rubygem-passenger-native
+    - openshift-origin-port-proxy
+    - openshift-origin-node-util
+    - rubygem-openshift-origin-container-selinux
+    - openshift-origin-msg-node-mcollective
+    - mcollective-common
+    - mcollective
+    - git
+    - make
+    - cronie
+  ## async: 5400
+  ## poll: 10
+
+- name: Install OpenShift front-end plugins
+  yum: pkg={{item}} state=latest
+  with_items:
+    ## can't have both mod-rewrite ?& vhost - it's one or the other
+    - rubygem-openshift-origin-frontend-apache-mod-rewrite
+    # - rubygem-openshift-origin-frontend-apache-vhost
+    - rubygem-openshift-origin-frontend-nodejs-websocket
+
+### Install cartridge pkgs for OpenShift Origin Node
+- name: Install OpenShift Cartridge Packages
+  yum: pkg={{item}} state=latest
+  with_items:
+    # - openshift-origin-cartridge-abstract
+    - openshift-origin-cartridge-10gen-mms-agent
+    - openshift-origin-cartridge-cron
+    - openshift-origin-cartridge-diy
+    - openshift-origin-cartridge-haproxy
+    - openshift-origin-cartridge-mongodb
+    - openshift-origin-cartridge-mysql
+    - openshift-origin-cartridge-nodejs
+    # - openshift-origin-cartridge-jenkins
+    # - openshift-origin-cartridge-jenkins-client
+    - openshift-origin-cartridge-python
+    - openshift-origin-cartridge-postgresql
+    - openshift-origin-cartridge-ruby
+    - openshift-origin-cartridge-php
+    - openshift-origin-cartridge-perl
+    - openshift-origin-cartridge-phpmyadmin
+  ## async: 5400
+  ## poll: 10
+
+### Install mq_provider
+- name: Install MCollective Provider - QPID
+  yum: pkg=mcollective-qpid-plugin state=latest
+  when: mq_provider == "qpid"
+
+- name: Install MCollective Provider - ActiveMQ
+  yum: pkg=activemq state=latest
+  when: mq_provider == "activemq"
+
+
+##FEDORA ### libvirt* pieces are not listed in official docs?
+##FEDORA ### Install libvirt bits for sandboxing
+##FEDORA - name: Install libvirt requirements
+##FEDORA   yum: pkg={{item}} state=latest
+##FEDORA   with_items:
+##FEDORA     - libvirt-daemon
+##FEDORA     - libvirt-sandbox
+##FEDORA - name: Start and Enable libvirtd
+##FEDORA   service: name=libvirtd state=started enabled=yes
+
+### Configure dhclient FIXME - for not-all-in-one
+
+- name: Verify origin-node-util installed for quota init
+  yum: pkg=openshift-origin-node-util state=latest

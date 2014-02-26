@@ -1,0 +1,303 @@
+---
+## main.yml - OpenShift Origin Node role for an OpenShift Origin deployment
+#
+# Ansible playbook to deploy OpenShift Origin using nightly builds
+#
+#
+
+## Hmm, maybe later?
+## - name: Setup OpenShift Origin Nightly Supplemental Repo
+##   copy: src=jenkins.repo dest=/etc/yum.repos.d/jenkins.repo
+ 
+- name: Set broker_fqdn in /etc/hosts
+  lineinfile: dest=/etc/hosts 
+              regexp="{{oo_ipaddr}} {{broker_fqdn}}"
+              line='{{oo_ipaddr}} {{broker_fqdn}}' 
+
+- name: SELinux - configure sebooleans
+  seboolean:  name={{item}} state=true persistent=yes
+  with_items:
+    - httpd_run_stickshift
+    - allow_polyinstantiation
+    - httpd_can_network_connect
+    - httpd_can_network_relay
+    - httpd_read_user_content
+    - httpd_enable_homedirs
+    - httpd_execmem
+
+# FirewallD Configs
+- name: Configure Persistent FirewallD for http console
+  shell: lokkit --service http
+- name: Configure Persistent FirewallD for https console
+  shell: lokkit --service https
+- name: Configure Persistent FirewallD for port 8000/tcp
+  shell: lokkit --port 8000:tcp
+- name: Configure Persistent FirewallD for port 8443/tcp
+  shell: lokkit --port 8443:tcp
+      
+
+# sysctl changes needed by OpenShift Origin Node
+- name: sysctl - kernel.sem 
+  sysctl: name=kernel.sem state=present value="250  32000 32  4096"
+          reload=yes
+- name: sysctl - net.ipv4.ip_local_port_range
+  sysctl: name=net.ipv4.ip_local_port_range state=present 
+          value="15000 35530" reload=yes
+- name: sysctl - net.netfilter.nf_conntrack_max
+  sysctl: name=net.netfilter.nf_conntrack_max state=present 
+          value="1048576" reload=yes
+
+### Dev tools needed by some gem installs for native modules/extensions 
+- name: Install dev-tool deps for gem installs
+  rpm_query: pkg={{item}} state=present
+  with_items:
+    - ruby-devel 
+    - audit
+    - mysql-devel 
+    - mongodb-devel 
+    - gcc 
+    - make
+
+### Install pkgs for OpenShift Origin Node
+- name: Install OpenShift Package List
+  rpm_query: pkg={{item}} state=present
+  with_items:
+    - rubygem-openshift-origin-node
+    - rubygem-passenger-native
+    - openshift-origin-port-proxy
+    - openshift-origin-node-util
+    - rubygem-openshift-origin-container-selinux
+    - openshift-origin-msg-node-mcollective
+    - mcollective-common
+    - mcollective
+    - git
+    - make
+    - cronie
+  ## async: 5400
+  ## poll: 10
+
+- name: Install OpenShift front-end plugins
+  rpm_query: pkg={{item}} state=present
+  with_items:
+    ## can't have both mod-rewrite ?& vhost - it's one or the other
+    - rubygem-openshift-origin-frontend-apache-mod-rewrite
+    # - rubygem-openshift-origin-frontend-apache-vhost
+    - rubygem-openshift-origin-frontend-nodejs-websocket
+
+### Install cartridge pkgs for OpenShift Origin Node
+- name: Install OpenShift Cartridge Packages
+  rpm_query: pkg={{item}} state=present
+  with_items:
+    # - openshift-origin-cartridge-abstract
+    - openshift-origin-cartridge-10gen-mms-agent
+    - openshift-origin-cartridge-cron
+    - openshift-origin-cartridge-diy
+    - openshift-origin-cartridge-haproxy
+    - openshift-origin-cartridge-mongodb
+    - openshift-origin-cartridge-mysql
+    - openshift-origin-cartridge-nodejs
+    # - openshift-origin-cartridge-jenkins
+    # - openshift-origin-cartridge-jenkins-client
+    - openshift-origin-cartridge-python
+    - openshift-origin-cartridge-postgresql
+    - openshift-origin-cartridge-ruby
+    - openshift-origin-cartridge-php
+    - openshift-origin-cartridge-perl
+    - openshift-origin-cartridge-phpmyadmin
+  ## async: 5400
+  ## poll: 10
+
+### Register DNS
+#FIXME === This doesn't work, need to sort that out
+#FIXME - Should parameterize this later
+#
+#- name: Register DNS
+#  shell: "{{oo-register-dns}} -h {{ansible_fqdn}} -n {{oo_ipaddr}}"
+
+#FIXME - Need to add a config option for namserver config for not-all-in-one
+
+### Install mq_provider
+- name: Install MCollective Provider - QPID
+  rpm_query: pkg=mcollective-qpid-plugin state=present
+  when: mq_provider == "qpid"
+
+- name: Install MCollective Provider - ActiveMQ
+  rpm_query: pkg=activemq state=present
+  when: mq_provider == "activemq"
+
+
+##FEDORA ### libvirt* pieces are not listed in official docs?
+##FEDORA ### Install libvirt bits for sandboxing
+##FEDORA - name: Install libvirt requirements
+##FEDORA   yum: pkg={{item}} state=latest
+##FEDORA   with_items:
+##FEDORA     - libvirt-daemon
+##FEDORA     - libvirt-sandbox
+##FEDORA - name: Start and Enable libvirtd
+##FEDORA   service: name=libvirtd state=started enabled=yes
+
+### Configure dhclient FIXME - for not-all-in-one
+
+### Post pkginstall config
+- name: node.conf
+  template: src=node.conf.j2
+            dest=/etc/openshift/node.conf
+            owner=root group=root mode=0644
+- name: openshift_origin_node_severname.conf
+  template: src=openshift-origin-node_servername.conf.j2
+            dest=/etc/httpd/conf.d/000001_openshift_origin_node_servername.conf
+            owner=root group=root mode=0644
+- name: mcollective server config
+  template: src=mcollective-server.cfg.j2
+            dest=/etc/mcollective/server.cfg
+            owner=root group=root mode=0644
+- name: Find root mount point of gear dir
+  shell: df -P /var/lib/openshift | tail -1 | awk '{ print $6 }'
+  register: gear_root_mount
+  changed_when: False
+- name: Verify origin-node-util installed for quota init
+  rpm_query: pkg=openshift-origin-node-util state=present
+- name: Initialize quota db
+  shell: oo-init-quota creates={{gear_root_mount.stdout}}/aquota.user
+
+
+
+- name: openshift node pam sshd config
+  template: src=pam.sshd-rhel.j2
+            dest=/etc/pam.d/sshd
+            owner=root group=root mode=0644
+  register: last_run
+
+### Configure PAM
+##FEDORA - name: openshift node pam runuser
+##FEDORA   copy: src=pam.runuser-fedora
+##FEDORA         dest=/etc/pam.d/runuser owner=root group=root mode=0644
+##FEDORA - name: openshift node pam runuser-l
+##FEDORA   copy: src=pam.runuser-l-fedora
+##FEDORA         dest=/etc/pam.d/runuser-l owner=root group=root mode=0644
+##FEDORA - name: openshift node pam su
+##FEDORA   copy: src=pam.su-fedora
+##FEDORA         dest=/etc/pam.d/su owner=root group=root mode=0644
+##FEDORA - name: openshift node pam system-auth-ac
+##FEDORA   copy: src=pam.system-auth-ac-fedora
+##FEDORA         dest=/etc/pam.d/system-auth-ac owner=root group=root mode=0644
+
+## Replace above with RHEL equivalent:
+- name: Execute script for pam update
+  script: pam.sh
+  when: last_run.changed
+
+
+
+## Looks like below stuff is not applicable to RHEL
+##FEDORA - name: openshift node pam-namespace sandbox.conf
+##FEDORA   template: src=namespace-d-sandbox.conf.j2
+##FEDORA         dest=/etc/security/namespace.d/sandbox.conf
+##FEDORA         owner=root group=root mode=0644
+##FEDORA - name: openshift node pam-namespace tmp.conf
+##FEDORA   template: src=namespace-d-tmp.conf.j2
+##FEDORA         dest=/etc/security/namespace.d/tmp.conf
+##FEDORA         owner=root group=root mode=0644
+##FEDORA - name: openshift node pam-namespace vartmp.conf
+##FEDORA   template: src=namespace-d-vartmp.conf.j2
+##FEDORA         dest=/etc/security/namespace.d/vartmp.conf
+##FEDORA         owner=root group=root mode=0644
+
+- name: openshift node sshd config
+  copy: src=sshd_config dest=/etc/ssh/sshd_config
+        owner=root group=root mode=0600
+#TODO
+#- name: broker and console route for node
+#  copy: src=node_routes.txt dest=/tmp/nodes.broker_routes.txt
+#        owner=root group=root mode=0644
+
+
+- name: SELinux - configure sebooleans
+  seboolean:  name="{{ item }}" state=true persistent=yes
+  with_items:
+      - httpd_unified
+      - httpd_can_network_connect
+      - httpd_can_network_relay
+      - httpd_run_stickshift
+      - httpd_read_user_content
+      - httpd_enable_homedirs
+      - allow_polyinstantiation
+
+
+- name: Restore SELinux context "{{gear_root_dir}}"
+  command: "{{restorecon}} -Rv {{gear_root_dir}}"
+  changed_when: False
+- name: Restore SELinux context "{{gear_httpd_dir}}"
+  command: "{{restorecon}} -Rv {{gear_httpd_dir}}"
+  changed_when: False
+
+### Verify all services are up
+##FEDORA - name: Verify libcgroup-tools are installed for cgconfig/cgred
+##FEDORA   yum: pkg=libcgroup-tools state=latest
+##FEDORA - name: start/enable cgconfig service
+##FEDORA   service: name=cgconfig state=started enabled=yes
+##FEDORA   when: configure_cgroups == 'true'
+##FEDORA - name: start/enable cgred service
+##FEDORA   service: name=cgred state=started enabled=yes
+##FEDORA   when: configure_cgroups == 'true'
+#
+
+- name: Copy the cgconfig file
+  copy: src=rhel-cgconfig.conf dest=/etc/cgconfig.conf
+
+- name: Execute script for pam update
+  script: pam.sh
+  when: last_run.changed
+
+- name: Create directory for cgroups
+  file: path=/cgroup state=directory
+
+- name: restart croles/broker/handlers/main.yml:groups
+  service: name="{{ item }}" state=restarted enabled=yes
+  with_items:
+      - cgconfig
+      - cgred
+      - httpd
+      - messagebus
+      - oddjobd
+  when: last_run.changed 
+
+- name: enable openshift traffic control
+  service: name=openshift-tc enabled=yes state=started
+
+- name: start/enable openshift-gears
+  service: name=openshift-gears state=started enabled=yes
+
+- name: start/enable openshift-port-proxy service
+  service: name=openshift-port-proxy state=started enabled=yes
+
+- name: start/enable crond
+  service: name=crond state=started enabled=yes
+
+- name: start/enable openshift-node-web-proxy
+  service: name=openshift-node-web-proxy state=started enabled=yes
+
+- name: start/enable mcollective
+  service: name=mcollective state=started enabled=yes
+
+- name: start/enable oddjobd
+  service: name=oddjobd state=started enabled=yes
+
+- name: start/enable sshd
+  service: name=sshd state=started enabled=yes
+
+## ln -s /etc/openshift/server_pub.pem /var/www/openshift/broker/config/server_pub.pem
+- name: Symlink server_pub.pem
+  file: src=/etc/openshift/server_pub.pem dest=/var/www/openshift/broker/config/server_pub.pem state=link
+
+- name: Make sure routes file exists for all-in-one host config
+  tags: configure
+  copy: src=allinone-nodes.txt dest=/etc/httpd/conf.d/openshift/nodes.txt
+        force=no
+  when: oo_single_host == "true"
+
+- name: regenerate broker routes
+  script: regenerate_broker_routes.sh
+
+- name: restart broker 
+  service: name=openshift-broker state=restarted

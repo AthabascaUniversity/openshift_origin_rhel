@@ -1,0 +1,47 @@
+---
+### main.yml - ActiveMQ role for an OpenShift Origin deployment 
+#
+# Ansible playbook to deploy OpenShift Origin using nightly builds
+#
+
+- name: Configure Persistent FirewallD for ActiveMQ
+  tags: configure
+  shell: lokkit --port 61613:tcp
+
+- name: Install ActiveMQ
+  tags: install
+  rpm_query: pkg=activemq state=present
+
+- name: Configure ActiveMQ jetty.xml
+  tags: configure
+  template: src=jetty.xml.j2
+            dest=/etc/activemq/jetty.xml
+  notify:
+    - restart activemq
+
+- name: Configure ActiveMQ activemq.xml
+  tags: configure
+  template: src=activemq.xml.j2
+            dest=/etc/activemq/activemq.xml
+  notify:
+    - restart activemq
+
+- name: Configure ActiveMQ jetty-realm.properties
+  tags: configure
+  template: src=jetty-realm.properties.j2
+            dest=/etc/activemq/jetty-realm.properties.xml
+  notify:
+    - restart activemq
+
+- name: Configure ActiveMQ tmp-activemq.conf
+  tags: configure
+  template: src=tmp-activemq.conf.j2
+            dest=/etc/tmpfiles.d/activemq.conf
+  notify:
+    - restart activemq
+  when: ansible_distribution == "Fedora"
+
+- name: Start and Enable ActiveMQ
+  tags: configure
+  service: name=activemq state=started enabled=yes
+ 

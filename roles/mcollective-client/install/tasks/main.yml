@@ -1,0 +1,6 @@
+---
+### main.yml - mcollective-client role for an OpenShift Origin deployment 
+#
+# Ansible playbook to deploy OpenShift Origin using nightly builds
+#
+

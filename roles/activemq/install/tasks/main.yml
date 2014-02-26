@@ -1,0 +1,10 @@
+---
+### main.yml - ActiveMQ role for an OpenShift Origin deployment 
+#
+# Ansible playbook to deploy OpenShift Origin using nightly builds
+#
+
+- name: Install ActiveMQ
+  tags: install
+  yum: pkg=activemq state=latest
+

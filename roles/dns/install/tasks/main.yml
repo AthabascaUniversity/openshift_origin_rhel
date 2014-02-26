@@ -1,0 +1,13 @@
+---
+### main.yml - named role for an OpenShift Origin deployment 
+#
+# Ansible playbook to deploy OpenShift Origin using nightly builds
+#
+
+- name: Install bind
+  tags: installer
+  yum: pkg={{item}} state=latest
+  with_items:
+    - bind
+    - bind-utils
+

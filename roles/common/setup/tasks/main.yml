@@ -1,0 +1,90 @@
+---
+### main.yml - common role for an OpenShift Origin deployment 
+#
+# Ansible playbook to deploy OpenShift Origin using nightly builds
+#
+
+# Setup repos
+## apparently copy operations will fail without python-libselinux....
+- name: Install common packages
+  tags: install
+  rpm_query : name={{ item }} state=present
+  with_items:
+   - libselinux-python
+   - policycoreutils
+   - policycoreutils-python
+   - ntp
+ 
+# SELinux Stuff 
+- name: SELinux Enforcing (Targeted)
+  tags: configure
+  selinux: policy=targeted state=enforcing
+- name: Ensure Installed - policycoreutils
+  tags: configure
+  rpm_query: pkg=policycoreutils state=present
+- name: Ensure Installed - policycoreutils-python
+  tags: configure
+  rpm_query: pkg=policycoreutils-python state=present
+
+# Default firewalld configs
+- name: Ensure Install - firewall
+  tags: install
+  rpm_query: pkg=system-config-firewall-base state=present
+- name: Start and Enable firewalld daemon
+  tags: configure
+  service: name=iptables state=started enabled=yes
+  async: 10
+  poll: 2
+
+
+# Ensure NTP installed and configured
+- name: Ensure Install - ntpdate
+  tags: install
+  rpm_query: pkg={{ item }} state=present
+  with_items:
+  - ntp
+  - ntpdate
+
+- name: Stop ntp daemon for ntpdate sync
+  tags: configure
+  service: name=ntpd state=stopped
+  changed_when: False
+
+- name: Synchronize Clock with ntpdate
+  tags: configure
+  command: /usr/sbin/ntpdate -u {{ ntpserver }}
+  changed_when: False
+
+- name: Start and Enable ntp daemon
+  tags: configure
+  service: name=ntpd state=started enabled=yes
+  changed_when: False
+
+- name: MCollective client install
+  tags: install
+  rpm_query: pkg=mcollective-client state=present
+
+
+## Should this be thrown into node/broker??
+- name: Install Ruby on RHEL
+  tags: install
+  rpm_query: name=ruby193 state=present
+  when: ansible_distribution == "RedHat"
+
+- name: Setup Ruby profile.d on RHEL
+  tags: configure
+  copy: src=rhel-scl193.sh dest=/etc/profile.d/scl193.sh mode=0755 
+  when: ansible_distribution == "RedHat"
+
+- name: Setup Ruby mcollective on RHEL
+  tags: configure
+  copy: src=rhel-scl193.sh dest=/etc/sysconfig/mcollective mode=0755 
+  when: ansible_distribution == "RedHat"
+
+
+# Configure dhclient
+- name: Configure dhclient for DNS
+  tags: configure
+  template: src=dhclient.conf.j2
+            dest="/etc/dhcp/dhclient-{{oo_external_iface}}.conf"
+            backup=yes

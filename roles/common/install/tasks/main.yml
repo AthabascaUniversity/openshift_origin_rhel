@@ -1,0 +1,75 @@
+---
+### main.yml - common role for an OpenShift Origin deployment 
+#
+# Ansible playbook to deploy OpenShift Origin using nightly builds
+#
+
+# Setup repos
+## apparently copy operations will fail without python-libselinux....
+- name: Install common packages
+  tags: install
+  yum : name={{ item }} state=installed
+  with_items:
+   - libselinux-python
+   - policycoreutils
+   - policycoreutils-python
+   - ntp
+ 
+- name: Setup Extra repos
+  tags: install
+  copy: src={{ item }} dest=/etc/yum.repos.d/{{ item }} backup=yes force=no
+  with_items:
+      # - rhel-openshift-origin-deps.repo
+      # - rhel-openshift-origin.repo
+      - rhel-epel.repo
+  when: ansible_distribution == "RedHat"
+
+- name: Setup OpenShift Origin Nightly Repo
+  template: src=openshift-origin-nightly.repo.j2
+            dest=/etc/yum.repos.d/openshift-origin-nightly.repo
+  when: oo_nightly == "true"
+- name: Setup OpenShift Origin Nightly Supplemental Repo
+  template: src=openshift-origin-nightly-deps.repo.j2
+            dest=/etc/yum.repos.d/openshift-origin-nightly-deps.repo
+  when: oo_nightly == "true"
+
+- name: Setup OpenShift Origin Stable
+  template: src=openshift-origin-stable.repo.j2
+            dest=/etc/yum.repos.d/openshift-origin-stable-{{ oo_stable_ver }}.repo
+  when: oo_stable == "true"
+- name: Setup OpenShift Origin Nightly Supplemental Repo
+  template: src=openshift-origin-stable-deps.repo.j2
+            dest=/etc/yum.repos.d/openshift-origin-stable-{{ oo_stable_ver }}-deps.repo
+  when: oo_stable == "true"
+
+
+- name: Ensure Installed - policycoreutils
+  tags: configure
+  yum: pkg=policycoreutils state=latest
+- name: Ensure Installed - policycoreutils-python
+  tags: configure
+  yum: pkg=policycoreutils-python state=latest
+
+# Default firewalld configs
+- name: Ensure Install - firewall
+  tags: install
+  yum: pkg=system-config-firewall-base state=latest
+
+# Ensure NTP installed and configured
+- name: Ensure Install - ntpdate
+  tags: install
+  yum: pkg={{ item }} state=latest
+  with_items:
+  - ntp
+  - ntpdate
+
+- name: MCollective client install
+  tags: install
+  yum: pkg=mcollective-client state=present
+
+
+## Should this be thrown into node/broker??
+- name: Install Ruby on RHEL
+  tags: install
+  yum: name=ruby193 state=present
+  when: ansible_distribution == "RedHat"

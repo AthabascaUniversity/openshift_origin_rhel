@@ -1,0 +1,48 @@
+---
+### Dev tools needed by some gem installs for native modules/extensions 
+- name: Install dev-tool deps for gem installs
+  tags: install
+  yum: pkg={{item}} state=latest
+  with_items:
+    - ruby193-ruby-devel 
+    - audit
+    - mysql-devel 
+    - mongodb-devel 
+    - gcc 
+    - make
+
+### Broker package list
+- name: Install OpenShift Package List
+  tags: install
+  yum: pkg={{item}} state=latest
+  # Others use:
+  # with_items: "{{ broker_packages }}"
+  # We will go with docs:
+  with_items:
+  ## From official docs:
+  - openshift-origin-broker 
+  - openshift-origin-broker-util 
+  - rubygem-openshift-origin-auth-remote-user 
+  - rubygem-openshift-origin-auth-mongo 
+  - rubygem-openshift-origin-msg-broker-mcollective 
+  ## dns-avahi gem is not present on RHEL repos
+  # - rubygem-openshift-origin-dns-avahi 
+  - rubygem-openshift-origin-dns-nsupdate 
+  - rubygem-openshift-origin-dns-route53 
+  - rubygem-openshift-origin-dns-bind
+  - ruby193-rubygem-passenger 
+  - ruby193-mod_passenger
+  # async: 5400
+  # poll: 10
+
+- name: Verify origin-broker and rubygem-bundler are installed
+  tags: install
+  yum: pkg={{item}} state=latest
+  with_items:
+    - openshift-origin-broker
+    - rubygem-bundler
+
+#DIMON Do we need it?
+- name: Broker bundle install 
+  script: broker_bundle_install.sh
+

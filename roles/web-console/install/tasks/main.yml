@@ -1,0 +1,14 @@
+---
+### main.yml - console role for an OpenShift Origin deployment 
+#
+# Ansible playbook to deploy OpenShift Origin using nightly builds
+#
+
+- name: Ensure Install - console pkgs
+  yum: pkg={{item}} state=latest
+  with_items:
+    - rubygem-openshift-origin-console
+    - gcc
+    - make
+    - openshift-origin-console
+
