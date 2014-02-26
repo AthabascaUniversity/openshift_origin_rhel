@@ -2,37 +2,37 @@
 
 - hosts: all
   roles: 
-  - role: common/install
+  - role: common/install-yum
 
 - hosts: dns
   roles: 
-  - role: dns/install
+  - role: dns/install-yum
 
 - hosts: mongodb
   roles: 
-  - role: mongodb/install
+  - role: mongodb/install-yum
 
 - hosts: mq
   roles: 
-    - role: qpid/install
+    - role: qpid/install-yum
       when: mq_provider == "qpid"
-    - role: activemq/install
+    - role: activemq/install-yum
       when: mq_provider == "activemq"
 
 - hosts: broker
   roles:
-  - role: mcollective-client/install
-  - role: broker/install
+  - role: mcollective-client/install-yum
+  - role: broker/install-yum
   # - role: broker-plugins
-  - role: web-console/install
+  - role: web-console/install-yum
 
 - hosts: node
   roles:
-  - role: node/install
+  - role: node/install-yum
 
 ### Cut-off
 
 - hosts: all
   roles: 
-    - role: post-deploy/install
+    - role: post-deploy/install-yum
 
