@@ -1,0 +1,38 @@
+---
+
+- hosts: all
+  roles: 
+  - role: common/install
+
+- hosts: dns
+  roles: 
+  - role: dns/install
+
+- hosts: mongodb
+  roles: 
+  - role: mongodb/install
+
+- hosts: mq
+  roles: 
+    - role: qpid/install
+      when: mq_provider == "qpid"
+    - role: activemq/install
+      when: mq_provider == "activemq"
+
+- hosts: broker
+  roles:
+  - role: mcollective-client/install
+  - role: broker/install
+  # - role: broker-plugins
+  - role: web-console/install
+
+- hosts: node
+  roles:
+  - role: node/install
+
+### Cut-off
+
+- hosts: all
+  roles: 
+    - role: post-deploy/install
+

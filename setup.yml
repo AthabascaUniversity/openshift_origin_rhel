@@ -2,37 +2,37 @@
 
 - hosts: all
   roles: 
-  - role: common
+  - role: common/setup
 
 - hosts: dns
   roles: 
-  - role: dns
+  - role: dns/setup
 
 - hosts: mongodb
   roles: 
-  - role: mongodb
+  - role: mongodb/setup
 
 - hosts: mq
   roles: 
-    - role: qpid
+    - role: qpid/setup
       when: mq_provider == "qpid"
-    - role: activemq
+    - role: activemq/setup
       when: mq_provider == "activemq"
 
 - hosts: broker
   roles:
-  - role: mcollective-client
-  - role: broker
+  - role: mcollective-client/setup
+  - role: broker/setup
   # - role: broker-plugins
-  - role: web-console
+  - role: web-console/setup
 
 - hosts: node
   roles:
-  - role: node
+  - role: node/setup
 
 ### Cut-off
 
 - hosts: all
   roles: 
-    - role: post-deploy
+    - role: post-deploy/setup
 
