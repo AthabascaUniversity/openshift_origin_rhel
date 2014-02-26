@@ -1,5 +1,0 @@
-[openshift-origin]
-name=openshift-origin
-baseurl=https://mirror.openshift.com/pub/openshift-origin/nightly/rhel-6/latest/x86_64/
-gpgcheck=0
-enabled=1
