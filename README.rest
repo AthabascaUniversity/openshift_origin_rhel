@@ -21,6 +21,16 @@ Licenses
 
   * `GPL v3 <http://www.gnu.org/licenses/gpl-3.0.txt>`_
 
+Use
+===
+
+There are two stages for deployment: install and setup. You should run appropriate playbooks in that order::
+
+  # ansible-playbook -i inventory.txt install-yum.yml
+  # ansible-playbook -i inventory.txt setup.yml
+
+Note that you can use install-*.yml script that matches your desired implementation. Yum is default method of deployment but others should be available (or not so hard to derive from install-yum.yml)
+
 Dependencies
 ============
 
