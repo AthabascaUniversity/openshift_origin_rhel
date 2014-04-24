@@ -43,7 +43,9 @@
     - ruby193-ruby-devel 
     - audit
     - mysql-devel 
-    - mongodb-devel 
+    #  mongodb-devel is replaced by libmongodb-devel
+    # - mongodb-devel 
+    - libmongodb-devel
     - gcc 
     - make
 

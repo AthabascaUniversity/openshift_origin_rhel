@@ -54,7 +54,9 @@
     - ruby-devel 
     - audit
     - mysql-devel 
-    - mongodb-devel 
+    # mongodb-devel has been replaced by libmongodb-devel
+    # - mongodb-devel 
+    - libmongodb-devel
     - gcc 
     - make
 
