@@ -25,6 +25,8 @@ Dependencies
 ============
 
 * `ansible-libs <https://github.com/droopy4096/ansible-libs>`_
+ 
+  * rpm_query module is required by this reworked modular implementation
 
 Development
 ===========
