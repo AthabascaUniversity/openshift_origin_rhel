@@ -10,6 +10,7 @@
   tags: install
   yum : name={{ item }} state=installed
   with_items:
+   - yum-plugin-priorities
    - libselinux-python
    - policycoreutils
    - policycoreutils-python

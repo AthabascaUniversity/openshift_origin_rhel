@@ -1,10 +1,19 @@
-* add yum-plugin-priority
-* set OSO-deps repo to be higher priority than RHN
-* modify /etc/httpd/conf.d/ruby193-passenger.conf::
+v add yum-plugin-priority
+v set OSO-deps repo to be higher priority than RHN
+v modify /etc/httpd/conf.d/ruby193-passenger.conf on broker::
 
    -PassengerRuby /opt/rh/ruby193/root/usr/bin/ruby
    +PassengerRuby /usr/bin/ruby193-ruby
  
   as per https://bugzilla.redhat.com/show_bug.cgi?id=874511 to eliminate "libruby.so.1.9 not found"
 
+
+o make sure /etc/httpd/conf.d/openshift/nodes.txt is being properly processed
+o correct /opt/rh/ruby193/root/etc/mcollective/{client,server}.cfg
+  o figure out what to do with /etc/mcollective/{client,server}.cfg
+o fix "missing libhttp_parser" error:
+
+   o add to /etc/ld.so.conf.d/nodejs010-http-parser.conf:
+     /opt/rh/nodejs010/root/usr/lib64/
+   o run ldconfig
 

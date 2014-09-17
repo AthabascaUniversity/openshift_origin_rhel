@@ -296,7 +296,7 @@
 - name: Make sure routes file exists for all-in-one host config
   tags: configure
   copy: src=allinone-nodes.txt dest=/etc/httpd/conf.d/openshift/nodes.txt backup=yes
-        force=no
+        force=yes
   when: oo_single_host == "true"
 
 - name: regenerate broker routes
