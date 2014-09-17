@@ -160,16 +160,15 @@
   changed_when: False
 - name: Verify origin-node-util installed for quota init
   rpm_query: pkg=openshift-origin-node-util state=present
+
 - name: Initialize quota db
   shell: oo-init-quota creates={{gear_root_mount.stdout}}/aquota.user
-
-
 
 - name: openshift node pam sshd config
   template: src=pam.sshd-rhel.j2
             dest=/etc/pam.d/sshd
             owner=root group=root mode=0644 backup=yes
-  register: last_run
+  register: pam_config_run
 
 ### Configure PAM
 ##FEDORA - name: openshift node pam runuser
@@ -188,7 +187,7 @@
 ## Replace above with RHEL equivalent:
 - name: Execute script for pam update
   script: pam.sh
-  when: last_run.changed
+  when: pam_config_run.changed
 
 
 
@@ -248,9 +247,10 @@
 - name: Copy the cgconfig file
   copy: src=rhel-cgconfig.conf dest=/etc/cgconfig.conf backup=yes
 
+## running twice????
 - name: Execute script for pam update
   script: pam.sh
-  when: last_run.changed
+  when: pam_config_run.changed
 
 - name: Create directory for cgroups
   file: path=/cgroup state=directory
@@ -263,7 +263,7 @@
       - httpd
       - messagebus
       - oddjobd
-  when: last_run.changed 
+  when: pam_config_run.changed 
 
 - name: enable openshift traffic control
   service: name=openshift-tc enabled=yes state=started

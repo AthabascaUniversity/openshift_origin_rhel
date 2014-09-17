@@ -36,7 +36,7 @@
   notify:
     - restart activemq
 
-- name: Configure ActiveMQ tmp-activemq.conf
+- name: Configure ActiveMQ tmp-activemq.conf for Fedora
   tags: configure
   template: src=tmp-activemq.conf.j2
             dest=/etc/tmpfiles.d/activemq.conf

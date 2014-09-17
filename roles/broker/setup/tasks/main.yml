@@ -114,11 +114,21 @@
   template: src=broker.conf.j2 dest=/etc/openshift/broker-dev.conf
             owner=apache group=apache mode=0644 backup=yes
 
+- name: Remove broker auth keys
+  tags: configure
+  file: path={{broker_auth_pubkey_path}} state=absent
+  when: broker_auth_key_reset == "true"
+  
 - name: Generate broker auth keys
   tags: configure
   script: gen_broker_auth_keys.sh
           creates={{broker_auth_pubkey_path}}
 
+- name: Remove broker rsync keys
+  tags: configure
+  file: path={{broker_rsync_key_path}} state=absent
+  when: broker_rsync_key_reset == "true"
+  
 - name: Generate broker rsync keys
   tags: configure
   script: gen_broker_rsync_keys.sh
@@ -207,10 +217,15 @@
 - name: Broker bundle install 
   script: broker_bundle_install.sh
 
+- name: Force-Clear ruby gems
+  tags: configure
+  file: path=/var/www/openshift/broker/bundle.init state=absent
+  when: force_bundle_create == "true"
+
 - name: Bundle the ruby gems
   tags: configure
   shell: chdir=/var/www/openshift/broker/ /usr/bin/scl enable ruby193 "bundle show"; touch bundle.init
-         creates=//var/www/openshift/broker/bundle.init
+         creates=/var/www/openshift/broker/bundle.init
 
 ## May need to fix some SELinux labels as per docs
 #

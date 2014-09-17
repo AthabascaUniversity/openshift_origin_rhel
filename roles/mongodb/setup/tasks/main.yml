@@ -26,12 +26,12 @@
 - name: Ensure MongoDB daemon stopped
   tags: configure
   service: name=mongod state=stopped
-  when: r_checkmongoauth.stdout == "1"
+  # when: r_checkmongoauth.stdout == "1"
 
 - name: Configure MongoDB
   tags: configure
   template: src=mongodb.conf.j2 dest=/etc/mongodb.conf backup=yes
-  when: r_checkmongoauth.stdout == "1"
+  # when: r_checkmongoauth.stdout == "1"
 
 - name: Start and Enable MongoDB daemon
   tags: configure
@@ -46,12 +46,12 @@
   template: src=set_mongopw.sh.j2 dest=/tmp/00-set_mongopw.sh
             owner="{{ansible_user_id}}" group="{{ansible_user_id}}"
             mode=0500 backup=yes
-  when: r_checkmongoauth.stdout == "1"
+  # when: r_checkmongoauth.stdout == "1"
 
 - name: Run MongoDB user/pw script
   tags: configure
   action: raw /tmp/00-set_mongopw.sh
-  when: r_checkmongoauth.stdout == "1"
+  # when: r_checkmongoauth.stdout == "1"
 
 - name: Clean up after MongoDB user/pw script
   tags: configure
@@ -60,6 +60,6 @@
 - name: Enable mongo auth
   tags: configure
   shell: printf "auth = true\n" >> /etc/mongodb.conf
-  when: r_checkmongoauth.stdout == "1"
+  # when: r_checkmongoauth.stdout == "1"
   notify: restart mongod
 
