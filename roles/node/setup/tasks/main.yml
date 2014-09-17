@@ -13,6 +13,7 @@
   lineinfile: dest=/etc/hosts 
               regexp="{{oo_ipaddr}} {{broker_fqdn}}"
               line='{{oo_ipaddr}} {{broker_fqdn}}' 
+              backup=yes
 
 - name: SELinux - configure sebooleans
   seboolean:  name={{item}} state=true persistent=yes
@@ -144,15 +145,15 @@
 - name: node.conf
   template: src=node.conf.j2
             dest=/etc/openshift/node.conf
-            owner=root group=root mode=0644
+            owner=root group=root mode=0644 backup=yes
 - name: openshift_origin_node_severname.conf
   template: src=openshift-origin-node_servername.conf.j2
             dest=/etc/httpd/conf.d/000001_openshift_origin_node_servername.conf
-            owner=root group=root mode=0644
+            owner=root group=root mode=0644 backup=yes
 - name: mcollective server config
   template: src=mcollective-server.cfg.j2
             dest=/etc/mcollective/server.cfg
-            owner=root group=root mode=0644
+            owner=root group=root mode=0644 backup=yes
 - name: Find root mount point of gear dir
   shell: df -P /var/lib/openshift | tail -1 | awk '{ print $6 }'
   register: gear_root_mount
@@ -167,7 +168,7 @@
 - name: openshift node pam sshd config
   template: src=pam.sshd-rhel.j2
             dest=/etc/pam.d/sshd
-            owner=root group=root mode=0644
+            owner=root group=root mode=0644 backup=yes
   register: last_run
 
 ### Configure PAM
@@ -207,7 +208,7 @@
 
 - name: openshift node sshd config
   copy: src=sshd_config dest=/etc/ssh/sshd_config
-        owner=root group=root mode=0600
+        owner=root group=root mode=0600 backup=yes
 #TODO
 #- name: broker and console route for node
 #  copy: src=node_routes.txt dest=/tmp/nodes.broker_routes.txt
@@ -245,7 +246,7 @@
 #
 
 - name: Copy the cgconfig file
-  copy: src=rhel-cgconfig.conf dest=/etc/cgconfig.conf
+  copy: src=rhel-cgconfig.conf dest=/etc/cgconfig.conf backup=yes
 
 - name: Execute script for pam update
   script: pam.sh
@@ -294,7 +295,7 @@
 
 - name: Make sure routes file exists for all-in-one host config
   tags: configure
-  copy: src=allinone-nodes.txt dest=/etc/httpd/conf.d/openshift/nodes.txt
+  copy: src=allinone-nodes.txt dest=/etc/httpd/conf.d/openshift/nodes.txt backup=yes
         force=no
   when: oo_single_host == "true"
 

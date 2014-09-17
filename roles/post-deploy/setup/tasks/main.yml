@@ -8,4 +8,4 @@
 - name: Set resolv.conf
   tags: configure
   template: src=resolv.conf.j2
-            dest=/etc/resolv.conf
+            dest=/etc/resolv.conf backup=yes

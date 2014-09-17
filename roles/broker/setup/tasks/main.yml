@@ -2,13 +2,14 @@
 
 - name: Set hostname (RHEL)
   tags: configure
-  lineinfile: dest=/etc/sysconfig/network line="HOSTNAME={{ broker_fqdn }}" regexp='HOSTNAME'
+  lineinfile: dest=/etc/sysconfig/network line="HOSTNAME={{ broker_fqdn }}" regexp='HOSTNAME' backup=yes
 
 - name: Set broker_fqdn in /etc/hosts
   tags: configure
   lineinfile: dest=/etc/hosts
               regexp="{{oo_ipaddr}} {{broker_fqdn}}"
               line='{{oo_ipaddr}} {{broker_fqdn}}'
+              backup=yes
 
 - name: SELinux - configure sebooleans
   tags: configure
@@ -95,7 +96,7 @@
 - name: broker.conf
   tags: configure
   template: src=broker.conf.j2 dest=/etc/openshift/broker.conf
-            owner=apache group=apache mode=0644
+            owner=apache group=apache mode=0644 backup=yes
 
 ##XXX Why do it twice?
 - name: Verify origin-broker installed
@@ -106,12 +107,12 @@
   tags: configure
   copy: src=broker_remote_auth.conf
             dest=/var/www/openshift/broker/httpd/conf.d/openshift-origin-auth-remote-user-basic.conf
-            owner=apache group=apache mode=0644
+            owner=apache group=apache mode=0644 backup=yes
 
 - name: broker-dev.conf
   tags: configure
   template: src=broker.conf.j2 dest=/etc/openshift/broker-dev.conf
-            owner=apache group=apache mode=0644
+            owner=apache group=apache mode=0644 backup=yes
 
 - name: Generate broker auth keys
   tags: configure
@@ -127,13 +128,13 @@
   tags: configure
   template: src=broker_servername.conf.j2
             dest=/etc/httpd/conf.d/000000_openshift_origin_broker_servername.conf
-            owner=root group=root mode=0644
+            owner=root group=root mode=0644 backup=yes
 
 - name: Configure mcollective broker plugin 
   tags: configure
   copy: src=msg-broker-mcollective.conf
             dest=/etc/openshift/plugins.d/openshift-origin-msg-broker-mcollective.conf
-            owner=root group=root mode=0644
+            owner=root group=root mode=0644 backup=yes
 
 #TODO - parameter this out
 #- name: Broker Auth Plugin - Mongo
@@ -145,7 +146,7 @@
   tags: configure
   template: src=auth_remote_user.conf.j2
             dest=/etc/openshift/plugins.d/openshift-origin-auth-remote-user.conf
-            owner=root group=root mode=0644
+            owner=root group=root mode=0644 backup=yes
 
 - name: Register dnssec key for nsupdate plugin
   tags: configure
@@ -156,7 +157,7 @@
   tags: configure
   template: src=dns-bind.conf.j2
             dest=/etc/openshift/plugins.d/openshift-origin-dns-bind.conf
-            owner=root group=root mode=0644
+            owner=root group=root mode=0644 backup=yes
 
 ##MOVED_TO_NODE ## This has to go to nodes
 ##MOVED_TO_NODE - name: Make sure routes file exists for all-in-one host config
@@ -231,7 +232,7 @@
 - name: Workaround for user_action.log - File creation
   tags: configure
   copy: src=user_action.log dest=/var/log/openshift/user_action.log
-        force=no
+        force=no backup=yes
 - name: Workaround for user_action.log - SELinux/perms
   tags: configure
   file: path=/var/log/openshift/user_action.log owner=apache

@@ -73,12 +73,12 @@
 
 - name: Setup Ruby profile.d on RHEL
   tags: configure
-  copy: src=rhel-scl193.sh dest=/etc/profile.d/scl193.sh mode=0755 
+  copy: src=rhel-scl193.sh dest=/etc/profile.d/scl193.sh mode=0755 backup=yes
   when: ansible_distribution == "RedHat"
 
 - name: Setup Ruby mcollective on RHEL
   tags: configure
-  copy: src=rhel-scl193.sh dest=/etc/sysconfig/mcollective mode=0755 
+  copy: src=rhel-scl193.sh dest=/etc/sysconfig/mcollective mode=0755 backup=yes
   when: ansible_distribution == "RedHat"
 
 
