@@ -11,4 +11,7 @@
     - gcc
     - make
     - openshift-origin-console
+    # to solve "can't find libhttp_parser.so.2 errors
+    - http-parser
+    - libuv
 

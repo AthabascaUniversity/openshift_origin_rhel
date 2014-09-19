@@ -71,8 +71,8 @@
     - openshift-origin-node-util
     - rubygem-openshift-origin-container-selinux
     - openshift-origin-msg-node-mcollective
-    - mcollective-common
-    - mcollective
+    ##MCOLLECTIVE- mcollective-common
+    ##MCOLLECTIVE- mcollective
     - git
     - make
     - cronie
@@ -150,10 +150,10 @@
   template: src=openshift-origin-node_servername.conf.j2
             dest=/etc/httpd/conf.d/000001_openshift_origin_node_servername.conf
             owner=root group=root mode=0644 backup=yes
-- name: mcollective server config
-  template: src=mcollective-server.cfg.j2
-            dest=/etc/mcollective/server.cfg
-            owner=root group=root mode=0644 backup=yes
+##MCOLLECTIVE - name: mcollective server config
+  ##MCOLLECTIVE template: src=mcollective-server.cfg.j2
+            ##MCOLLECTIVE dest=/etc/mcollective/server.cfg
+            ##MCOLLECTIVE owner=root group=root mode=0644 backup=yes
 - name: Find root mount point of gear dir
   shell: df -P /var/lib/openshift | tail -1 | awk '{ print $6 }'
   register: gear_root_mount
@@ -162,7 +162,7 @@
   rpm_query: pkg=openshift-origin-node-util state=present
 
 - name: Initialize quota db
-  shell: oo-init-quota creates={{gear_root_mount.stdout}}/aquota.user
+  shell: creates={{gear_root_mount.stdout}}/aquota.user oo-init-quota 
 
 - name: openshift node pam sshd config
   template: src=pam.sshd-rhel.j2
@@ -280,8 +280,11 @@
 - name: start/enable openshift-node-web-proxy
   service: name=openshift-node-web-proxy state=started enabled=yes
 
-- name: start/enable mcollective
-  service: name=mcollective state=started enabled=yes
+##MCOLLECTIVE - name: start/enable mcollective
+  ##MCOLLECTIVE service: name=mcollective state=started enabled=yes
+
+- name: start/enable ruby193-mcollective
+  service: name=ruby193-mcollective state=started enabled=yes
 
 - name: start/enable oddjobd
   service: name=oddjobd state=started enabled=yes
