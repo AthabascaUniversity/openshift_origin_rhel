@@ -96,10 +96,11 @@
 - name: reconfigure /etc/httpd/conf.d/ruby193-passenger.conf
   copy: src=ruby193-passenger.conf dest=/etc/httpd/conf.d/ruby193-passenger.conf backup=yes
 
-- name: ruby193 mcollective server config
-  template: src=mcollective-server.cfg.j2
-            dest=/opt/rh/ruby193/root/etc/mcollective/server.cfg
-            owner=root group=root mode=0644 backup=yes
+## Should be in "node" not "broker"
+##DISABLED - name: ruby193 mcollective server config
+##DISABLED   template: src=mcollective-server.cfg.j2
+##DISABLED             dest=/opt/rh/ruby193/root/etc/mcollective/server.cfg
+##DISABLED             owner=root group=root mode=0644 backup=yes
 
 ## Done in mcollective-client role
 ##MOVED - name: ruby193 mcollective client config

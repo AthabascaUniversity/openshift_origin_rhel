@@ -154,6 +154,13 @@
   ##MCOLLECTIVE template: src=mcollective-server.cfg.j2
             ##MCOLLECTIVE dest=/etc/mcollective/server.cfg
             ##MCOLLECTIVE owner=root group=root mode=0644 backup=yes
+
+- name: ruby193 mcollective server config
+  template: src=mcollective-server.cfg.j2
+            dest=/opt/rh/ruby193/root/etc/mcollective/server.cfg
+            owner=root group=root mode=0644 backup=yes
+
+
 - name: Find root mount point of gear dir
   shell: df -P /var/lib/openshift | tail -1 | awk '{ print $6 }'
   register: gear_root_mount
