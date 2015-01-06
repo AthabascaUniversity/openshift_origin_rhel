@@ -13,6 +13,7 @@ mongo: /usr/bin/mongo
 
 # Install mode for yum: present or latest
 install_mode: present
+rhn_add_channels: True
 
 # single_host - Is this deploying to a single host or multiple hosts?
 #
