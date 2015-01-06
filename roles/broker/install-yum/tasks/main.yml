@@ -2,7 +2,7 @@
 ### Dev tools needed by some gem installs for native modules/extensions 
 - name: Install dev-tool deps for gem installs
   tags: install
-  yum: pkg={{item}} state=latest
+  yum: pkg={{item}} state={{ install_mode }}
   with_items:
     - ruby193-ruby-devel 
     - audit
@@ -14,7 +14,7 @@
 ### Broker package list
 - name: Install OpenShift Package List
   tags: install
-  yum: pkg={{item}} state=latest
+  yum: pkg={{item}} state={{ install_mode }}
   # Others use:
   # with_items: "{{ broker_packages }}"
   # We will go with docs:
@@ -37,7 +37,7 @@
 
 - name: Verify origin-broker and rubygem-bundler are installed
   tags: install
-  yum: pkg={{item}} state=latest
+  yum: pkg={{item}} state={{ install_mode }}
   with_items:
     - openshift-origin-broker
     - rubygem-bundler

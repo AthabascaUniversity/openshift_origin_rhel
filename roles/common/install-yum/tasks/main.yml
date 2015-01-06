@@ -45,20 +45,20 @@
 
 - name: Ensure Installed - policycoreutils
   tags: configure
-  yum: pkg=policycoreutils state=latest
+  yum: pkg=policycoreutils state={{ install_mode }}
 - name: Ensure Installed - policycoreutils-python
   tags: configure
-  yum: pkg=policycoreutils-python state=latest
+  yum: pkg=policycoreutils-python state={{ install_mode }}
 
 # Default firewalld configs
 - name: Ensure Install - firewall
   tags: install
-  yum: pkg=system-config-firewall-base state=latest
+  yum: pkg=system-config-firewall-base state={{ install_mode }}
 
 # Ensure NTP installed and configured
 - name: Ensure Install - ntpdate
   tags: install
-  yum: pkg={{ item }} state=latest
+  yum: pkg={{ item }} state={{ install_mode }}
   with_items:
   - ntp
   - ntpdate

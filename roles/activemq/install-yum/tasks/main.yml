@@ -6,5 +6,5 @@
 
 - name: Install ActiveMQ
   tags: install
-  yum: pkg=activemq state=latest
+  yum: pkg=activemq state={{ install_mode }}
 

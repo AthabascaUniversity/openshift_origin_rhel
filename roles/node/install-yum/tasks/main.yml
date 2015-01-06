@@ -5,13 +5,34 @@
 #
 #
 
+- name: subscibe to all the proper channels via subscription manager
+  ## no module for subscription-manager's repo subcommand
+  shell: creates=/var/cache/yum/x86_64/6Server/{{ item }} subscription-manager repos --enable={{ item }}
+  ## rhn_challe is kind of obsolete
+  # rhn_channel: name={{ item }} sysname={{ inventory_hostname }} url=https://rhn.redhat.com/rpc/api user={{ rhn_user }} password={{ rhn_password }}
+  with_items:
+  - rhel-6-server-supplementary-rpms
+  - rhel-6-server-rh-common-rpms
+  - rhel-server-rhscl-6-rpms
+  - rhel-6-server-rhn-tools-rpms
+  - rhel-6-server-rpms
+  - rhel-server-rhscl-6-eus-rpms
+  - rhel-6-server-extras-rpms
+  - rhel-6-server-optional-rpms
+  when: ansible_distribution == "RedHat" and ansible_distribution_major_version|int >= 6
+  tags:
+  - install
+
+
+
+
 ## Hmm, maybe later?
 ## - name: Setup OpenShift Origin Nightly Supplemental Repo
 ##   copy: src=jenkins.repo dest=/etc/yum.repos.d/jenkins.repo
  
 ### Dev tools needed by some gem installs for native modules/extensions 
 - name: Install dev-tool deps for gem installs
-  yum: pkg={{item}} state=latest
+  yum: pkg={{item}} state={{ install_mode }}
   with_items:
     - ruby-devel 
     - audit
@@ -22,7 +43,7 @@
 
 ### Install pkgs for OpenShift Origin Node
 - name: Install OpenShift Package List
-  yum: pkg={{item}} state=latest
+  yum: pkg={{item}} state={{ install_mode }}
   with_items:
     - rubygem-openshift-origin-node
     - rubygem-passenger-native
@@ -39,7 +60,7 @@
   ## poll: 10
 
 - name: Install OpenShift front-end plugins
-  yum: pkg={{item}} state=latest
+  yum: pkg={{item}} state={{ install_mode }}
   with_items:
     ## can't have both mod-rewrite ?& vhost - it's one or the other
     - rubygem-openshift-origin-frontend-apache-mod-rewrite
@@ -48,7 +69,7 @@
 
 ### Install cartridge pkgs for OpenShift Origin Node
 - name: Install OpenShift Cartridge Packages
-  yum: pkg={{item}} state=latest
+  yum: pkg={{item}} state={{ install_mode }}
   with_items:
     # - openshift-origin-cartridge-abstract
     - openshift-origin-cartridge-10gen-mms-agent
@@ -71,18 +92,18 @@
 
 ### Install mq_provider
 - name: Install MCollective Provider - QPID
-  yum: pkg=mcollective-qpid-plugin state=latest
+  yum: pkg=mcollective-qpid-plugin state={{ install_mode }}
   when: mq_provider == "qpid"
 
 - name: Install MCollective Provider - ActiveMQ
-  yum: pkg=activemq state=latest
+  yum: pkg=activemq state={{ install_mode }}
   when: mq_provider == "activemq"
 
 
 ##FEDORA ### libvirt* pieces are not listed in official docs?
 ##FEDORA ### Install libvirt bits for sandboxing
 ##FEDORA - name: Install libvirt requirements
-##FEDORA   yum: pkg={{item}} state=latest
+##FEDORA   yum: pkg={{item}} state={{ install_mode }}
 ##FEDORA   with_items:
 ##FEDORA     - libvirt-daemon
 ##FEDORA     - libvirt-sandbox
@@ -92,4 +113,4 @@
 ### Configure dhclient FIXME - for not-all-in-one
 
 - name: Verify origin-node-util installed for quota init
-  yum: pkg=openshift-origin-node-util state=latest
+  yum: pkg=openshift-origin-node-util state={{ install_mode }}

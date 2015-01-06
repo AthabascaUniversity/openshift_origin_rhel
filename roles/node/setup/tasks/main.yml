@@ -131,7 +131,7 @@
 ##FEDORA ### libvirt* pieces are not listed in official docs?
 ##FEDORA ### Install libvirt bits for sandboxing
 ##FEDORA - name: Install libvirt requirements
-##FEDORA   yum: pkg={{item}} state=latest
+##FEDORA   yum: pkg={{item}} state={{ install_mode }}
 ##FEDORA   with_items:
 ##FEDORA     - libvirt-daemon
 ##FEDORA     - libvirt-sandbox
@@ -235,7 +235,7 @@
 
 ### Verify all services are up
 ##FEDORA - name: Verify libcgroup-tools are installed for cgconfig/cgred
-##FEDORA   yum: pkg=libcgroup-tools state=latest
+##FEDORA   yum: pkg=libcgroup-tools state={{ install_mode }}
 ##FEDORA - name: start/enable cgconfig service
 ##FEDORA   service: name=cgconfig state=started enabled=yes
 ##FEDORA   when: configure_cgroups == 'true'
