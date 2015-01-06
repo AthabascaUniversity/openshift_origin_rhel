@@ -3,7 +3,7 @@ main_collective = mcollective
 collectives = mcollective
 ##FEDORA libdir = /usr/libexec/mcollective
 libdir = /opt/rh/ruby193/root/usr/libexec/mcollective
-logfile = /var/log/mcollective.log
+logfile = /var/log/openshift/node/ruby193-mcollective.log
 loglevel = debug
 daemonize = 1
 direct_addressing = 1
@@ -20,6 +20,11 @@ plugin.activemq.pool.1.host = {{ mq_fqdn }}
 plugin.activemq.pool.1.port = 61613
 plugin.activemq.pool.1.user = {{ mq_server_user }}
 plugin.activemq.pool.1.password = {{ mq_server_password }}
+
+plugin.activemq.stomp_1_0_fallback = 0
+plugin.activemq.heartbeat_interval = 30
+plugin.activemq.max_hbread_fails = 2
+plugin.activemq.max_hbrlck_fails = 2
 {% endif %}
 
 
@@ -29,6 +34,7 @@ plugin.qpid.host= {{ mq_fqdn }}
 plugin.qpid.secure=false
 plugin.qpid.timeout=5
 {% endif %}
+
 
 # Facts
 factsource = yaml

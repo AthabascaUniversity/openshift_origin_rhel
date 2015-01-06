@@ -2,13 +2,14 @@
 
 - name: Set hostname (RHEL)
   tags: configure
-  lineinfile: dest=/etc/sysconfig/network line="HOSTNAME={{ broker_fqdn }}" regexp='HOSTNAME'
+  lineinfile: dest=/etc/sysconfig/network line="HOSTNAME={{ broker_fqdn }}" regexp='HOSTNAME' backup=yes
 
 - name: Set broker_fqdn in /etc/hosts
   tags: configure
   lineinfile: dest=/etc/hosts
               regexp="{{oo_ipaddr}} {{broker_fqdn}}"
               line='{{oo_ipaddr}} {{broker_fqdn}}'
+              backup=yes
 
 - name: SELinux - configure sebooleans
   tags: configure
@@ -92,10 +93,25 @@
   ## tags: install
   ## wait_for: path=/etc/openshift
 
+- name: reconfigure /etc/httpd/conf.d/ruby193-passenger.conf
+  copy: src=ruby193-passenger.conf dest=/etc/httpd/conf.d/ruby193-passenger.conf backup=yes
+
+## Should be in "node" not "broker"
+##DISABLED - name: ruby193 mcollective server config
+##DISABLED   template: src=mcollective-server.cfg.j2
+##DISABLED             dest=/opt/rh/ruby193/root/etc/mcollective/server.cfg
+##DISABLED             owner=root group=root mode=0644 backup=yes
+
+## Done in mcollective-client role
+##MOVED - name: ruby193 mcollective client config
+##MOVED   template: src=mcollective-client.cfg.j2
+##MOVED             dest=/opt/rh/ruby193/root/etc/mcollective/client.cfg
+##MOVED             owner=root group=root mode=0644 backup=yes
+
 - name: broker.conf
   tags: configure
   template: src=broker.conf.j2 dest=/etc/openshift/broker.conf
-            owner=apache group=apache mode=0644
+            owner=apache group=apache mode=0644 backup=yes
 
 ##XXX Why do it twice?
 - name: Verify origin-broker installed
@@ -106,18 +122,28 @@
   tags: configure
   copy: src=broker_remote_auth.conf
             dest=/var/www/openshift/broker/httpd/conf.d/openshift-origin-auth-remote-user-basic.conf
-            owner=apache group=apache mode=0644
+            owner=apache group=apache mode=0644 backup=yes
 
 - name: broker-dev.conf
   tags: configure
   template: src=broker.conf.j2 dest=/etc/openshift/broker-dev.conf
-            owner=apache group=apache mode=0644
+            owner=apache group=apache mode=0644 backup=yes
 
+- name: Remove broker auth keys
+  tags: configure
+  file: path={{broker_auth_pubkey_path}} state=absent
+  when: broker_auth_key_reset == "true"
+  
 - name: Generate broker auth keys
   tags: configure
   script: gen_broker_auth_keys.sh
           creates={{broker_auth_pubkey_path}}
 
+- name: Remove broker rsync keys
+  tags: configure
+  file: path={{broker_rsync_key_path}} state=absent
+  when: broker_rsync_key_reset == "true"
+  
 - name: Generate broker rsync keys
   tags: configure
   script: gen_broker_rsync_keys.sh
@@ -127,13 +153,13 @@
   tags: configure
   template: src=broker_servername.conf.j2
             dest=/etc/httpd/conf.d/000000_openshift_origin_broker_servername.conf
-            owner=root group=root mode=0644
+            owner=root group=root mode=0644 backup=yes
 
 - name: Configure mcollective broker plugin 
   tags: configure
   copy: src=msg-broker-mcollective.conf
             dest=/etc/openshift/plugins.d/openshift-origin-msg-broker-mcollective.conf
-            owner=root group=root mode=0644
+            owner=root group=root mode=0644 backup=yes
 
 #TODO - parameter this out
 #- name: Broker Auth Plugin - Mongo
@@ -145,7 +171,7 @@
   tags: configure
   template: src=auth_remote_user.conf.j2
             dest=/etc/openshift/plugins.d/openshift-origin-auth-remote-user.conf
-            owner=root group=root mode=0644
+            owner=root group=root mode=0644 backup=yes
 
 - name: Register dnssec key for nsupdate plugin
   tags: configure
@@ -156,7 +182,7 @@
   tags: configure
   template: src=dns-bind.conf.j2
             dest=/etc/openshift/plugins.d/openshift-origin-dns-bind.conf
-            owner=root group=root mode=0644
+            owner=root group=root mode=0644 backup=yes
 
 ##MOVED_TO_NODE ## This has to go to nodes
 ##MOVED_TO_NODE - name: Make sure routes file exists for all-in-one host config
@@ -206,10 +232,15 @@
 - name: Broker bundle install 
   script: broker_bundle_install.sh
 
+- name: Force-Clear ruby gems
+  tags: configure
+  file: path=/var/www/openshift/broker/bundle.init state=absent
+  when: force_bundle_create == "true"
+
 - name: Bundle the ruby gems
   tags: configure
   shell: chdir=/var/www/openshift/broker/ /usr/bin/scl enable ruby193 "bundle show"; touch bundle.init
-         creates=//var/www/openshift/broker/bundle.init
+         creates=/var/www/openshift/broker/bundle.init
 
 ## May need to fix some SELinux labels as per docs
 #
@@ -231,7 +262,7 @@
 - name: Workaround for user_action.log - File creation
   tags: configure
   copy: src=user_action.log dest=/var/log/openshift/user_action.log
-        force=no
+        force=no backup=yes
 - name: Workaround for user_action.log - SELinux/perms
   tags: configure
   file: path=/var/log/openshift/user_action.log owner=apache

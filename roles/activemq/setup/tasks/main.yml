@@ -16,6 +16,7 @@
   tags: configure
   template: src=jetty.xml.j2
             dest=/etc/activemq/jetty.xml
+            backup=yes
   notify:
     - restart activemq
 
@@ -23,6 +24,7 @@
   tags: configure
   template: src=activemq.xml.j2
             dest=/etc/activemq/activemq.xml
+            backup=yes
   notify:
     - restart activemq
 
@@ -30,13 +32,15 @@
   tags: configure
   template: src=jetty-realm.properties.j2
             dest=/etc/activemq/jetty-realm.properties.xml
+            backup=yes
   notify:
     - restart activemq
 
-- name: Configure ActiveMQ tmp-activemq.conf
+- name: Configure ActiveMQ tmp-activemq.conf for Fedora
   tags: configure
   template: src=tmp-activemq.conf.j2
             dest=/etc/tmpfiles.d/activemq.conf
+            backup=yes
   notify:
     - restart activemq
   when: ansible_distribution == "Fedora"

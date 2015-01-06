@@ -49,7 +49,7 @@
   tags: configure
   template: src=named_dnssec_setup.sh.j2
             dest=/root/00-setup_dnssec.sh
-            owner=root group=root mode=0500
+            owner=root group=root mode=0500 backup=yes
   changed_when: False
 - name: Run named DNSSEC script 
   tags: configure

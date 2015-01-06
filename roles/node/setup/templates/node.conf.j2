@@ -24,7 +24,8 @@ GEAR_GECOS="OpenShift guest"                              # Gecos information to
 GEAR_MIN_UID=1000                                          # Lower bound of UID used to create gears
 GEAR_MAX_UID=6000                                         # Upper bound of UID used to create gears
 # Without apache-mod-rewrite and nodejs-websocket plugins routing doesn't seem to work properly
-OPENSHIFT_NODE_PLUGINS="openshift-origin-frontend-apache-mod-rewrite,openshift-origin-frontend-nodejs-websocket"                                    # Extentions to load when customize/observe openshift-origin-node models
+OPENSHIFT_NODE_PLUGINS="openshift-origin-frontend-apache-mod-rewrite,openshift-origin-frontend-nodejs-websocket"  # Extentions to load when customize/observe openshift-origin-node models
+OPENSHIFT_FRONTEND_HTTP_PLUGINS="openshift-origin-frontend-apache-mod-rewrite,openshift-origin-frontend-nodejs-websocket"  # Extentions to load when customize/observe openshift-origin-node models
 CARTRIDGE_BASE_PATH="/usr/libexec/openshift/cartridges"   # Locations where cartridges are installed
 LAST_ACCESS_DIR="/var/lib/openshift/.last_access"         # Location to maintain last accessed time for gears
 APACHE_ACCESS_LOG="/var/log/httpd/access_log"             # Localion of httpd for node

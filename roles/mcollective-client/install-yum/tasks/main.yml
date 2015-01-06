@@ -4,3 +4,11 @@
 # Ansible playbook to deploy OpenShift Origin using nightly builds
 #
 
+##MCOLLECTIVE - name: MCollective client install
+  ##MCOLLECTIVE tags: install
+  ##MCOLLECTIVE yum: pkg=mcollective-client state=present
+
+- name: ruby193 MCollective client install
+  tags: install
+  yum: pkg=ruby193-mcollective-client state=present
+
