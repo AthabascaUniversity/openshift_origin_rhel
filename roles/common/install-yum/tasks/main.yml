@@ -6,7 +6,8 @@
 
 - name: Add RHN channels
   rhn_channel: name={{ item }} sysname={{ inventory_hostname }} url=https://rhn.redhat.com/rpc/api user={{ rhn_user }} password={{ rhn_password }}
-  when: ansible_distribution == "RedHat" and ansible_distribution_major_version|int >= 6 and rhn_add_channels == "true"
+  # when: ansible_distribution == "RedHat" and ansible_distribution_major_version|int >= 6 and rhn_add_channels == "true"
+  when: ansible_distribution == "RedHat" and ansible_distribution_major_version|int >= 6 and rhn_add_channels
   tags: install
   with_items:
   - rhel-x86_64-server-6-rhscl-1 
