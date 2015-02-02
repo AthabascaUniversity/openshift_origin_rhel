@@ -5,16 +5,19 @@
 #
 
 - name: Add RHN channels
-  rhn_channel: name={{ item }} sysname={{ inventory_hostname }} url=https://rhn.redhat.com/rpc/api user={{ rhn_user }} password={{ rhn_password }}
-  # when: ansible_distribution == "RedHat" and ansible_distribution_major_version|int >= 6 and rhn_add_channels == "true"
+  ## rhn_channel: name={{ item }} sysname={{ inventory_hostname }} url=https://rhn.redhat.com/rpc/api user={{ rhn_user }} password={{ rhn_password }}
+  shell: creates=/var/cache/yum/x86_64/6Server/{{ item }} subscription-manager repos --enable={{ item }}
   when: ansible_distribution == "RedHat" and ansible_distribution_major_version|int >= 6 and rhn_add_channels
   tags: install
   with_items:
-  - rhel-x86_64-server-6-rhscl-1 
-  - rhel-x86_64-server-extras-6 
-  - rhel-x86_64-server-optional-6 
-  - rhel-x86_64-server-rh-common-6 
-  - rhel-x86_64-server-supplementary-6
+  - rhel-6-server-supplementary-rpms
+  - rhel-6-server-rh-common-rpms
+  - rhel-server-rhscl-6-rpms
+  - rhel-6-server-rhn-tools-rpms
+  - rhel-6-server-rpms
+  - rhel-server-rhscl-6-eus-rpms
+  - rhel-6-server-extras-rpms
+  - rhel-6-server-optional-rpms
 
 # Setup repos
 ## apparently copy operations will fail without python-libselinux....
@@ -58,20 +61,20 @@
 
 - name: Ensure Installed - policycoreutils
   tags: configure
-  yum: pkg=policycoreutils state=latest
+  yum: pkg=policycoreutils state={{ install_mode }}
 - name: Ensure Installed - policycoreutils-python
   tags: configure
-  yum: pkg=policycoreutils-python state=latest
+  yum: pkg=policycoreutils-python state={{ install_mode }}
 
 # Default firewalld configs
 - name: Ensure Install - firewall
   tags: install
-  yum: pkg=system-config-firewall-base state=latest
+  yum: pkg=system-config-firewall-base state={{ install_mode }}
 
 # Ensure NTP installed and configured
 - name: Ensure Install - ntpdate
   tags: install
-  yum: pkg={{ item }} state=latest
+  yum: pkg={{ item }} state={{ install_mode }}
   with_items:
   - ntp
   - ntpdate

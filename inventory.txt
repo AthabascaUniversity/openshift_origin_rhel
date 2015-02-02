@@ -1,15 +1,56 @@
 [dns]
-192.168.0.121 ansible_ssh_user=root
+10.10.10.10 ansible_ssh_user=root
 
 [mongodb]
-192.168.0.121 ansible_ssh_user=root
+10.10.10.10 ansible_ssh_user=root
 
 [mq]
-192.168.0.121 ansible_ssh_user=root
+10.10.10.10 ansible_ssh_user=root
 
 [broker]
-192.168.0.121 ansible_ssh_user=root
+10.10.10.10 ansible_ssh_user=root
 
 [node]
-192.168.0.121 ansible_ssh_user=root
+10.10.10.10 ansible_ssh_user=root
 
+
+### Per-host vars. Defaults are in group_vars/all
+## oo_ipaddr: "{{ansible_default_ipv4.address}}"
+## oo_external_iface: "{{ansible_default_ipv4.interface}}"
+
+[all:vars]
+oo_single_host="true"
+
+# This needs to be 127.0.0.1 for all-in-one OpenShift Origin install.
+oo_ns_server_ip="127.0.0.1"
+
+broker_auth_salt=blahblahblah
+broker_session_secret=verysecretblahblah
+broker_auth_key_passwd=""
+broker_fqdn=broker.example.com
+broker_auth_pubkey_path=/etc/openshift/server_pub.pem
+broker_rsync_key_path=/etc/openshift/rsync_id_rsa
+
+named_forwarder_ip="8.8.8.8; 8.8.4.4"
+named_tsig_priv_key=""
+
+infra_domain=example.com
+broker_infra_host=broker
+
+# cloud_domain - subdomain for PaaS Cloud apps to live under
+cloud_domain=app.example.com
+
+
+mq_fqdn="{{broker_fqdn}}"
+mq_server_user=mcollective
+mq_server_password=marionette
+
+mongo_auth_user=openshift
+mongo_db_name=openshift_broker_dev
+mongo_db_fqdn="{{broker_fqdn}}"
+mongo_auth_passwd=mooo
+mongo_admin_user=admin
+mongo_admin_passwd=admin
+mongo_db_port=27017
+
+ntpserver=clock.redhat.com

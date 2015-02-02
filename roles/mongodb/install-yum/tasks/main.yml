@@ -6,7 +6,7 @@
 
 - name: Install MongoDB pkgs
   tags: install
-  yum: pkg="{{item}}" state=latest
+  yum: pkg="{{item}}" state={{ install_mode }}
   with_items:
     - mongodb
     - mongodb-server

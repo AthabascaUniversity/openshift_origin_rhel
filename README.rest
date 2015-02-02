@@ -38,6 +38,14 @@ Dependencies
  
   * rpm_query module is required by this reworked modular implementation
 
+Requirements
+============
+
+* / - 1G+
+* /usr - 1.5G+
+* /var - 2G+
+
+
 Development
 ===========
 
