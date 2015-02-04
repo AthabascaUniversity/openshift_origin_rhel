@@ -25,7 +25,9 @@
   tags: install
   yum : name={{ item }} state=installed
   with_items:
-   - yum-plugin-priorities
+   # Sounds like priorities mess up dependencies
+   # - yum-plugin-priorities
+   - yum-plugin-protectbase
    - libselinux-python
    - policycoreutils
    - policycoreutils-python
@@ -33,12 +35,23 @@
  
 - name: Setup Extra repos
   tags: install
-  copy: src={{ item }} dest=/etc/yum.repos.d/{{ item }} backup=yes force=no
+  copy: src={{ item }} dest=/etc/yum.repos.d/{{ item }} backup=no 
   with_items:
       # - rhel-openshift-origin-deps.repo
       # - rhel-openshift-origin.repo
       - rhel-epel.repo
   when: ansible_distribution == "RedHat"
+
+- name: Bootstrap EPEL
+  yum: name=epel-release state=present enablerepo=epel-oso disable_gpg_check=yes
+
+- name: setup EPEL priority
+  ini_file: dest=/etc/yum.repos.d/epel.repo section=epel option=priority value={{ epel_repo_priority }} backup=no
+
+- name: add excludes to EPEL definition
+  # had to add armadillo as it was breaking things
+  ini_file: dest=/etc/yum.repos.d/epel.repo section=epel option=exclude value='*passenger* nodejs* mcollective* armadillo*' backup=no
+  
 
 - name: Setup OpenShift Origin Nightly Repo
   template: src=openshift-origin-nightly.repo.j2
@@ -58,17 +71,17 @@
             dest=/etc/yum.repos.d/openshift-origin-stable-{{ oo_stable_ver }}-deps.repo
   when: oo_stable == "true"
 
+- name: Force distro sync
+  shell: yum -y distribution-synchronization
 
 - name: Ensure Installed - policycoreutils
-  tags: configure
   yum: pkg=policycoreutils state={{ install_mode }}
+
 - name: Ensure Installed - policycoreutils-python
-  tags: configure
   yum: pkg=policycoreutils-python state={{ install_mode }}
 
 # Default firewalld configs
 - name: Ensure Install - firewall
-  tags: install
   yum: pkg=system-config-firewall-base state={{ install_mode }}
 
 # Ensure NTP installed and configured
