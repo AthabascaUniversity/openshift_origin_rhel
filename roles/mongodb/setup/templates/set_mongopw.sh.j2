@@ -12,5 +12,5 @@ mongo_auth_pass_hash=$(ruby -e \
   \"{{ broker_auth_salt }}\")")
 
 {{ mongo }} {{ mongo_db_name }} --username {{ mongo_auth_user }} \
-    --password {{ mongo_auth_passwd }} --eval \
+    --password "{{ mongo_auth_passwd }}" --eval \
     "db.auth_user.update({\"_id\":\"admin\"}, {\"_id\":\"admin\",\"user\":\"admin\",\"password_hash\":\"${mongo_auth_pass_hash}\"}, true)"
