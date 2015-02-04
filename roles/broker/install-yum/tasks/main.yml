@@ -45,4 +45,5 @@
 #DIMON Do we need it?
 - name: Broker bundle install 
   script: broker_bundle_install.sh
+  environment: proxy_settings
 
