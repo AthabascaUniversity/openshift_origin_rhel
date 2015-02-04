@@ -97,15 +97,15 @@ oo_ns_server_ip: "127.0.0.1"
 ##MOVED broker_rsync_key_path: /etc/openshift/rsync_id_rsa
 
 # named_forwarder_ip: "8.8.8.8; 8.8.4.4"
-named_forwarder_ip: "192.168.0.1"
+##MOVED named_forwarder_ip: "192.168.0.1"
 named_tsig_priv_key: ""
 
 # infra-domain - infrastrcture domain
-infra_domain: example.com
-broker_infra_host: broker
+##MOVED infra_domain: example.com
+##MOVED broker_infra_host: broker
 
 # cloud_domain - subdomain for PaaS Cloud apps to live under
-cloud_domain: app.example.com
+##MOVED cloud_domain: app.example.com
 
 #FIXME - activemq doesn't work in F19, using qpid instead
 # ---   ActiveMQ from the openshift deps repo works, needs to be fixed in 
@@ -158,3 +158,14 @@ gear_root_dir: /var/lib/openshift/
 # ntp timeserver
 ##MOVED ntpserver: clock.redhat.com
 
+# if you use proxy for outbound connections
+# set it up here
+# affects: ruby gem commands
+proxy_settings:
+  http_proxy: "http://localhost:3128"
+  https_proxy: "http://localhost:3128"
+
+
+# yum-plugin-priorities settings:
+oso_repo_priority: 200
+epel_repo_priority: 500
