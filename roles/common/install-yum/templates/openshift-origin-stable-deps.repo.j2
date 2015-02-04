@@ -3,5 +3,5 @@ name=OpenShift Origin Supplemental Deps
 baseurl=https://mirror.openshift.com/pub/openshift-origin/release/{{oo_stable_ver}}/rhel-{{ ansible_distribution_version[0]}}/dependencies/{{ ansible_architecture }}/
 enabled=1
 gpgcheck=0
-# priority=50
+priority={{ oso_repo_priority }}
 sslverify=false
