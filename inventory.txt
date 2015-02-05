@@ -26,10 +26,14 @@ oo_ns_server_ip="127.0.0.1"
 
 broker_auth_salt=blahblahblah
 broker_session_secret=verysecretblahblah
+broker_auth_key_reset=true
 broker_auth_key_passwd=""
 broker_fqdn=broker.example.com
 broker_auth_pubkey_path=/etc/openshift/server_pub.pem
 broker_rsync_key_path=/etc/openshift/rsync_id_rsa
+broker_rsync_key_reset=true
+
+force_bundle_create=true
 
 named_forwarder_ip="8.8.8.8; 8.8.4.4"
 named_tsig_priv_key=""
@@ -52,5 +56,9 @@ mongo_auth_passwd=mooo
 mongo_admin_user=admin
 mongo_admin_passwd=admin
 mongo_db_port=27017
+mongo_db_startup=60
+
+console_session_secret="xxxxxxxyyyyyyyyyyyyyyyyyyzzzzzzzzzzzzz"
+
 
 ntpserver=clock.redhat.com
