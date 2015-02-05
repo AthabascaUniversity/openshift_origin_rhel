@@ -35,6 +35,7 @@
 - name: Bundle install and build Rails assets
   script: console_bundle_install.sh
   notify: restart console
+  environment: proxy_settings
 
 - name: SELinux settings for OpenShift Origin Console
   seboolean:  name={{item}} state=true persistent=yes
